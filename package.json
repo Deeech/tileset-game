@@ -1,0 +1,18 @@
+{
+  "name": "tileset-game",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "author": "deeech!",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "dependencies": {
+    "express": "^4.12.3",
+    "socket.io": "^1.3.5"
+  }
+}
