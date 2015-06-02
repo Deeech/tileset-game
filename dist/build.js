@@ -36,23 +36,29 @@ var imageNumTiles = 16;  // The number of tiles per row in the tileset image
 var players = [];
 
 
-function Game(id) {
-	var player = new Player(id, id);
-	console.log(id);
+function Game(spawnPosition) {
+	this.player = new Player(spawnPosition.x, spawnPosition.y);
+	var self = this;
+
 	var tick = function () {
 		ctx.clearRect(0,0, canvas.width, canvas.height);
-		drawImage(tilesetImage);
-		ctx.fillRect(player.col * 32, player.row * 32, 32, 32);
+		drawImage(tilesetImage);		
+		ctx.fillRect(self.player.col * 32, self.player.row * 32, 32, 32);
 		window.requestAnimationFrame(tick);
 	};
+
 	tick();
 }
 ;function Player(col, row) {
+	this.id;
 	this.col = col;
 	this.row = row;
 	this.color = "red";
+
+
+
 	var self = this;
-	nav[col][row] = 1;
+	
 	window.addEventListener('keydown', function(e) {
 		//keyState[e.keyCode] = true;
 		var data;
@@ -60,46 +66,50 @@ function Game(id) {
 			if (nav[self.col - 1][self.row] == 0) {
 				nav[self.col - 1][self.row] = 1;
 				nav[self.col][self.row] = 0;
-				self.col--;
 				data = {
 					c: self.col - 1,
 					r: self.row
 				};
+				self.col--;
 			};
 		}
 		if (e.keyCode == 39) { //right
 			if (nav[self.col + 1][self.row] == 0) {
 				nav[self.col + 1][self.row] = 1;
 				nav[self.col][self.row] = 0;
-				self.col++;
 				data = {
 					c: self.col + 1,
 					r: self.row
 				};
+				self.col++;
 			};
 		}
 		if (e.keyCode == 38) { //down
 			if (nav[self.col][self.row - 1] == 0) {
 				nav[self.col][self.row - 1] = 1;
 				nav[self.col][self.row] = 0;
-				self.row--;
 				data = {
 					c: self.col,
 					r: self.row - 1
 				};
+				self.row--;
 			};
 		}
 		if (e.keyCode == 40) { //up
 			if (nav[self.col][self.row + 1] == 0) {
 				nav[self.col][self.row + 1] = 1;
 				nav[self.col][self.row] = 0;
-				self.row++;
 				data = {
 					c: self.col,
 					r: self.row + 1
 				};
+				self.row++;
 			};
 		}
-		socket.emit('move', { data: data });
+
+		console.clear(); // debug
+		console.table(nav);
+
+		socket.emit('move', data);
 	});
 }

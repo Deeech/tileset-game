@@ -26,14 +26,16 @@ var imageNumTiles = 16;  // The number of tiles per row in the tileset image
 var players = [];
 
 
-function Game(id) {
-	var player = new Player(id, id);
-	console.log(id);
+function Game(spawnPosition) {
+	this.player = new Player(spawnPosition.x, spawnPosition.y);
+	var self = this;
+
 	var tick = function () {
 		ctx.clearRect(0,0, canvas.width, canvas.height);
-		drawImage(tilesetImage);
-		ctx.fillRect(player.col * 32, player.row * 32, 32, 32);
+		drawImage(tilesetImage);		
+		ctx.fillRect(self.player.col * 32, self.player.row * 32, 32, 32);
 		window.requestAnimationFrame(tick);
 	};
+
 	tick();
 }

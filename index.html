@@ -15,8 +15,9 @@
 			console.log("connected");
 		});
 		socket.on("map", function(data) {
+			console.log(data);
 			nav = data.nav;
-			var game = new Game(data.id);
+			var game = new Game(data.spawnPosition);
 		});
 	</script>
 </body>

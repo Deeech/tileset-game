@@ -12,7 +12,7 @@ app.use('/src', express.static('src'));
 app.use('/dist', express.static('dist'));
 
 var players = [];
-var id = 1;
+
 var nav = [
 [0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0],
@@ -26,24 +26,48 @@ var nav = [
 [0,0,0,0,0,0,0,0,0,0]
 ];
 
+function setSpawnPosition() {
+	var spawnPosition = {
+		x: Math.abs(Math.round(Math.random() * 10 - 1)),
+		y: Math.abs(Math.round(Math.random() * 10 - 1))
+	};
+
+	if (nav[spawnPosition.x][spawnPosition.y] == 1) {
+		setSpawnPosition();
+	} else {
+		return spawnPosition;
+	}
+}
+
 
 io.on('connection', function(socket){
 	console.log('a user connected');
 
-	nav[id, id] = 1;
-	id++;
+	socket.clientname = "Player" + Math.round(Math.random()*100);
+	console.log("Player name: " + socket.clientname);
 
-	io.sockets.emit('map', {
+	var spawnPosition = setSpawnPosition();
+	console.log("Player start position: " + "x" + spawnPosition.x + " y" + spawnPosition.y);
+
+	nav[spawnPosition.x][spawnPosition.y] = 1;
+
+	nav.push(socket.clientname);
+
+	socket.emit('map', {
 		nav: nav,
-		id: id
+		spawnPosition: spawnPosition
 	});
 
 	socket.on('disconnect', function(){
+		console.log(socket.clientname);
 		console.log('user disconnected');
 	});
 
 	socket.on('move', function (data) {
 		console.log(data);
+		if (nav[data.c][data.r] != 1) {
+			console.log("move");
+		}
 	});
 });
 
