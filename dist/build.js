@@ -1,11 +1,15 @@
 function drawImage (image) {
 	for (var r = 0; r < rowTileCount; r++) {
 		for (var c = 0; c < colTileCount; c++) {
-			var tile = ground[ r ][ c ];
-			tile--; // TODO fit it
-			var tileRow = (tile / imageNumTiles) | 0; // Bitwise OR operation // the same as row = Math.floor(10 / 16) = Math.floor(0.625) = 0
-			var tileCol = (tile % imageNumTiles) | 0; // the same as col = Math.floor(10 % 16) = Math.floor(10) = 10 
-			ctx.drawImage(image, (tileCol * tileSize), (tileRow * tileSize), tileSize, tileSize, (c * tileSize), (r * tileSize), tileSize, tileSize);
+			if (nav[c][r] != 1) {
+				var tile = ground[ r ][ c ];
+				tile--; // TODO fit it
+				var tileRow = (tile / imageNumTiles) | 0; // Bitwise OR operation // the same as row = Math.floor(10 / 16) = Math.floor(0.625) = 0
+				var tileCol = (tile % imageNumTiles) | 0; // the same as col = Math.floor(10 % 16) = Math.floor(10) = 10 
+				ctx.drawImage(image, (tileCol * tileSize), (tileRow * tileSize), tileSize, tileSize, (c * tileSize), (r * tileSize), tileSize, tileSize);
+			} else {
+				ctx.fillRect(c * 32, r * 32, 32, 32);
+			}
 		}
 	}
 };var ground = [
@@ -43,7 +47,6 @@ function Game(spawnPosition) {
 	var tick = function () {
 		ctx.clearRect(0,0, canvas.width, canvas.height);
 		drawImage(tilesetImage);		
-		ctx.fillRect(self.player.col * 32, self.player.row * 32, 32, 32);
 		window.requestAnimationFrame(tick);
 	};
 
@@ -60,56 +63,53 @@ function Game(spawnPosition) {
 	var self = this;
 	
 	window.addEventListener('keydown', function(e) {
+		console.log("keydown");
 		//keyState[e.keyCode] = true;
 		var data;
 		if (e.keyCode == 37) { //left
-			if (nav[self.col - 1][self.row] == 0) {
-				nav[self.col - 1][self.row] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col - 1,
-					r: self.row
-				};
-				self.col--;
+			data = {
+				x: self.col - 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 39) { //right
-			if (nav[self.col + 1][self.row] == 0) {
-				nav[self.col + 1][self.row] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col + 1,
-					r: self.row
-				};
-				self.col++;
+			data = {
+				x: self.col + 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 38) { //down
-			if (nav[self.col][self.row - 1] == 0) {
-				nav[self.col][self.row - 1] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col,
-					r: self.row - 1
-				};
-				self.row--;
+			data = {
+				x: self.col,
+				y: self.row - 1,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 40) { //up
-			if (nav[self.col][self.row + 1] == 0) {
-				nav[self.col][self.row + 1] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col,
-					r: self.row + 1
-				};
-				self.row++;
+			data = {
+				x: self.col,
+				y: self.row + 1,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 
-		console.clear(); // debug
+		console.clear();
 		console.table(nav);
 
-		socket.emit('move', data);
+		socket.emit("move", data);
+
+		socket.on("playermove", function(data) {
+			console.log("playermove");
+			console.log("recieve data");
+			console.log(data);
+			self.col = data.x;
+			self.row = data.y;
+		});
 	});
 }

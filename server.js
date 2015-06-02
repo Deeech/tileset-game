@@ -11,7 +11,7 @@ app.use('/static', express.static('static'));
 app.use('/src', express.static('src'));
 app.use('/dist', express.static('dist'));
 
-var players = [];
+var players = {};
 
 var nav = [
 [0,0,0,0,0,0,0,0,0,0],
@@ -51,7 +51,11 @@ io.on('connection', function(socket){
 
 	nav[spawnPosition.x][spawnPosition.y] = 1;
 
-	nav.push(socket.clientname);
+	players[socket.clientname] = {
+		position: spawnPosition
+	}
+
+	console.log(players);
 
 	socket.emit('map', {
 		nav: nav,
@@ -65,8 +69,33 @@ io.on('connection', function(socket){
 
 	socket.on('move', function (data) {
 		console.log(data);
-		if (nav[data.c][data.r] != 1) {
+		if (nav[data.x][data.y] != 1) {
+
+			var newPosition = {
+				x: data.x,
+				y: data.y
+			}
+
+			var oldPosition = {
+				x: data.oldx,
+				y: data.oldy
+			}
+
 			console.log("move");
+
+
+			players[socket.clientname].position = newPosition;
+
+			nav[oldPosition.x][oldPosition.y] = 0;
+			nav[newPosition.x][newPosition.y] = 1;
+
+			console.log(players);
+
+			socket.emit("playermove", newPosition);
+
+			io.sockets.emit('mapUpdate', {
+				nav: nav
+			});
 		}
 	});
 });

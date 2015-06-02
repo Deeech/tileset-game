@@ -33,7 +33,6 @@ function Game(spawnPosition) {
 	var tick = function () {
 		ctx.clearRect(0,0, canvas.width, canvas.height);
 		drawImage(tilesetImage);		
-		ctx.fillRect(self.player.col * 32, self.player.row * 32, 32, 32);
 		window.requestAnimationFrame(tick);
 	};
 

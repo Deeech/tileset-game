@@ -9,56 +9,53 @@ function Player(col, row) {
 	var self = this;
 	
 	window.addEventListener('keydown', function(e) {
+		console.log("keydown");
 		//keyState[e.keyCode] = true;
 		var data;
 		if (e.keyCode == 37) { //left
-			if (nav[self.col - 1][self.row] == 0) {
-				nav[self.col - 1][self.row] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col - 1,
-					r: self.row
-				};
-				self.col--;
+			data = {
+				x: self.col - 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 39) { //right
-			if (nav[self.col + 1][self.row] == 0) {
-				nav[self.col + 1][self.row] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col + 1,
-					r: self.row
-				};
-				self.col++;
+			data = {
+				x: self.col + 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 38) { //down
-			if (nav[self.col][self.row - 1] == 0) {
-				nav[self.col][self.row - 1] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col,
-					r: self.row - 1
-				};
-				self.row--;
+			data = {
+				x: self.col,
+				y: self.row - 1,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 		if (e.keyCode == 40) { //up
-			if (nav[self.col][self.row + 1] == 0) {
-				nav[self.col][self.row + 1] = 1;
-				nav[self.col][self.row] = 0;
-				data = {
-					c: self.col,
-					r: self.row + 1
-				};
-				self.row++;
+			data = {
+				x: self.col,
+				y: self.row + 1,
+				oldx: self.col,
+				oldy: self.row
 			};
 		}
 
-		console.clear(); // debug
+		console.clear();
 		console.table(nav);
 
-		socket.emit('move', data);
+		socket.emit("move", data);
+
+		socket.on("playermove", function(data) {
+			console.log("playermove");
+			console.log("recieve data");
+			console.log(data);
+			self.col = data.x;
+			self.row = data.y;
+		});
 	});
 }

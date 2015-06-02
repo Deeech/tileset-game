@@ -15,9 +15,14 @@
 			console.log("connected");
 		});
 		socket.on("map", function(data) {
+			console.log("map");
 			console.log(data);
 			nav = data.nav;
 			var game = new Game(data.spawnPosition);
+		});
+		socket.on("mapUpdate", function(data) {
+			console.log("mapUpdate");
+			nav = data.nav;
 		});
 	</script>
 </body>
