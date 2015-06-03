@@ -98,6 +98,11 @@ io.on('connection', function(socket){
 			});
 		}
 	});
+
+	socket.on('chat message', function(msg){
+		io.sockets.emit('chat message', msg);
+	});
+
 });
 
 http.listen(3000, function(req, res){

@@ -99,10 +99,12 @@ function Game(spawnPosition) {
 			};
 		}
 
-		console.clear();
-		console.table(nav);
+		if (data) {
+			console.clear();
+			console.table(nav);
 
-		socket.emit("move", data);
+			socket.emit("move", data);
+		};
 
 		socket.on("playermove", function(data) {
 			console.log("playermove");

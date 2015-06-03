@@ -2,11 +2,37 @@
 <html>
 <head>
 	<title></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 </head>
 <body>
-	<canvas id="main" width="320" height="320"></canvas>
+	<div class="container">
+		<div class="row clearfix">
+			<div class="col-md-12 column">
+				<div class="page-header">
+					<h1>
+						My first Html5 Game <small>ahuet'!</small>
+					</h1>
+				</div>
+			</div>
+		</div>
+		<div class="row clearfix">
+			<div class="col-md-8 column">
+				<canvas id="main" width="320" height="320"></canvas>
+			</div>
+			<div class="col-md-4 column">
+				<ul id="messages">
+					
+				</ul>
+				<form action="">
+					<input id="m" autocomplete="off" />
+					<button>Send</button>
+				</form>
+			</div>
+		</div>
+	</div>
 	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="dist/build.js"></script>
 	<script>
 		var socket = io();
@@ -23,6 +49,14 @@
 		socket.on("mapUpdate", function(data) {
 			console.log("mapUpdate");
 			nav = data.nav;
+		});
+		$('form').submit(function(){
+			socket.emit('chat message', $('#m').val());
+			$('#m').val('');
+			return false;
+		});
+		socket.on('chat message', function(msg){
+			$('#messages').append($('<li>').text(msg));
 		});
 	</script>
 </body>
