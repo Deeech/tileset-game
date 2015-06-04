@@ -8,7 +8,7 @@ function drawImage (image) {
 				var tileCol = (tile % imageNumTiles) | 0; // the same as col = Math.floor(10 % 16) = Math.floor(10) = 10 
 				ctx.drawImage(image, (tileCol * tileSize), (tileRow * tileSize), tileSize, tileSize, (c * tileSize), (r * tileSize), tileSize, tileSize);
 			} else {
-				ctx.fillRect(c * 32, r * 32, 32, 32);
+				ctx.fillRect(c * 64, r * 64, 64, 64);
 			}
 		}
 	}
