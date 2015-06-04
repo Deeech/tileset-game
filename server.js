@@ -43,24 +43,29 @@ function setSpawnPosition() {
 io.on('connection', function(socket){
 	console.log('a user connected');
 
-	socket.clientname = "Player" + Math.round(Math.random()*100);
-	console.log("Player name: " + socket.clientname);
+	
+	socket.on("userLogin", function(login) {
+		socket.clientname = "Player" + Math.round(Math.random()*100);
+		console.log("Player name: " + socket.clientname);
 
-	var spawnPosition = setSpawnPosition();
-	console.log("Player start position: " + "x" + spawnPosition.x + " y" + spawnPosition.y);
+		var spawnPosition = setSpawnPosition();
+		console.log("Player start position: " + "x" + spawnPosition.x + " y" + spawnPosition.y);
 
-	nav[spawnPosition.x][spawnPosition.y] = 1;
+		nav[spawnPosition.x][spawnPosition.y] = 1;
 
-	players[socket.clientname] = {
-		position: spawnPosition
-	}
+		players[socket.clientname] = {
+			position: spawnPosition,
+			socket: socket,
+			login: login
+		}
 
-	console.log(players);
+		console.log(players);
 
-	socket.emit('map', {
-		nav: nav,
-		spawnPosition: spawnPosition
-	});
+		socket.emit('map', {
+			nav: nav,
+			spawnPosition: spawnPosition
+		});
+	})
 
 	socket.on('disconnect', function(){
 		console.log(socket.clientname);
@@ -100,7 +105,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('chat message', function(msg){
-		io.sockets.emit('chat message', msg);
+		io.sockets.emit('chat message', { msg: msg, name: players[socket.clientname].login });
 	});
 
 });

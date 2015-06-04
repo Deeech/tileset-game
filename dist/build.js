@@ -100,9 +100,6 @@ function Game(spawnPosition) {
 		}
 
 		if (data) {
-			console.clear();
-			console.table(nav);
-
 			socket.emit("move", data);
 		};
 

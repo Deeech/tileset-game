@@ -46,9 +46,6 @@ function Player(col, row) {
 		}
 
 		if (data) {
-			console.clear();
-			console.table(nav);
-
 			socket.emit("move", data);
 		};
 
