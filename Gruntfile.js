@@ -42,5 +42,7 @@ module.exports = function(grunt) {
 	});
 	grunt.registerTask('ugl', ['uglify']);
 
+	grunt.registerTask('con', ['concat']);
+
 	grunt.registerTask('default', ['watch']);
 }

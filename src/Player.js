@@ -46,13 +46,10 @@ function Player(col, row) {
 		}
 
 		if (data) {
-			socket.emit("move", data);
+			socket.emit("playerMove", data);
 		};
 
-		socket.on("playermove", function(data) {
-			console.log("playermove");
-			console.log("recieve data");
-			console.log(data);
+		socket.on("playerMove", function(data) {
 			self.col = data.x;
 			self.row = data.y;
 		});

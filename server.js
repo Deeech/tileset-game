@@ -13,7 +13,7 @@ app.use('/dist', express.static('dist'));
 
 var players = {};
 
-var nav = [
+var navigationMap = [
 [0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0],
@@ -32,7 +32,7 @@ function setSpawnPosition() {
 		y: Math.abs(Math.round(Math.random() * 10 - 1))
 	};
 
-	if (nav[spawnPosition.x][spawnPosition.y] == 1) {
+	if (navigationMap[spawnPosition.x][spawnPosition.y] == 1) {
 		setSpawnPosition();
 	} else {
 		return spawnPosition;
@@ -43,38 +43,39 @@ function setSpawnPosition() {
 io.on('connection', function(socket){
 	console.log('a user connected');
 
-	
-	socket.on("userLogin", function(login) {
+	socket.on("userLogin", function(nickname) {
+		console.log("login");
 		socket.clientname = "Player" + Math.round(Math.random()*100);
-		console.log("Player name: " + socket.clientname);
+		socket.position = setSpawnPosition();
+		socket.nickname = nickname;
 
-		var spawnPosition = setSpawnPosition();
-		console.log("Player start position: " + "x" + spawnPosition.x + " y" + spawnPosition.y);
+		players[socket.clientname] = socket;
 
-		nav[spawnPosition.x][spawnPosition.y] = 1;
+		navigationMap[socket.position.x][socket.position.y] = 1;
 
-		players[socket.clientname] = {
-			position: spawnPosition,
-			socket: socket,
-			login: login
-		}
+		
 
 		console.log(players);
 
-		socket.emit('map', {
-			nav: nav,
-			spawnPosition: spawnPosition
+		socket.emit('spawnNewPlayer', {
+			navigationMap: navigationMap,
+			spawnPosition: socket.position
 		});
-	})
 
-	socket.on('disconnect', function(){
-		console.log(socket.clientname);
-		console.log('user disconnected');
+		io.sockets.emit('updateMap', navigationMap);
 	});
 
-	socket.on('move', function (data) {
+	socket.on('disconnect', function() {
+		if (socket.clientname && socket.nickname && socket.position) {
+			console.log(socket.clientname + " : " + socket.nickname + " has disconected");
+			navigationMap[socket.position.x][socket.position.y] = 0;
+			io.sockets.emit('updateMap', navigationMap);
+		};
+	});
+
+	socket.on('playerMove', function (data) {
 		console.log(data);
-		if (nav[data.x][data.y] != 1) {
+		if (navigationMap[data.x][data.y] != 1) {
 
 			var newPosition = {
 				x: data.x,
@@ -96,16 +97,13 @@ io.on('connection', function(socket){
 
 			console.log(players);
 
-			socket.emit("playermove", newPosition);
-
-			io.sockets.emit('mapUpdate', {
-				nav: nav
-			});
+			socket.emit("playerMove", newPosition);
+			io.sockets.emit('updateMap', navigationMap);
 		}
 	});
 
 	socket.on('chat message', function(msg){
-		io.sockets.emit('chat message', { msg: msg, name: players[socket.clientname].login });
+		io.sockets.emit('chat message', { msg: msg, nickname: socket.nickname });
 	});
 
 });

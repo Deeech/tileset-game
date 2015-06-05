@@ -1,7 +1,7 @@
 function drawImage (image) {
 	for (var r = 0; r < rowTileCount; r++) {
 		for (var c = 0; c < colTileCount; c++) {
-			if (nav[c][r] != 1) {
+			if (navigationMap[c][r] != 1) {
 				var tile = ground[ r ][ c ];
 				tile--; // TODO fit it
 				var tileRow = (tile / imageNumTiles) | 0; // Bitwise OR operation // the same as row = Math.floor(10 / 16) = Math.floor(0.625) = 0
@@ -100,13 +100,10 @@ function Game(spawnPosition) {
 		}
 
 		if (data) {
-			socket.emit("move", data);
+			socket.emit("playerMove", data);
 		};
 
-		socket.on("playermove", function(data) {
-			console.log("playermove");
-			console.log("recieve data");
-			console.log(data);
+		socket.on("playerMove", function(data) {
 			self.col = data.x;
 			self.row = data.y;
 		});
