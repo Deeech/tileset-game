@@ -1,13 +1,25 @@
 function Player(col, row) {
 	this.id;
+	
 	this.col = col;
 	this.row = row;
+	
 	this.color = "red";
 
+	this.hitPoints = 0;
+	this.maxHitPoints = 0;
+	this.isDead = false;
+	this.attackingMode = false;
+	this.followingMode = false;
 
 
 	var self = this;
 	
+	
+
+
+
+
 	window.addEventListener('keydown', function(e) {
 		console.log("keydown");
 		//keyState[e.keyCode] = true;
