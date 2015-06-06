@@ -23,12 +23,14 @@ var colTileCount = 10;   // The number of tiles in a column of our background
 var imageNumTiles = 10;  // The number of tiles per row in the tileset image
 
 
-var players = [];
+var players = {};
 
 
-function Game(spawnPosition) {
-	this.player = new Player(spawnPosition.x, spawnPosition.y);
+function Game(spawnPosition, newPlayername) {
+	player = new Player(spawnPosition.x, spawnPosition.y);
 	var self = this;
+
+	players[newPlayername] = player;
 
 	var tick = function () {
 		ctx.clearRect(0,0, canvas.width, canvas.height);

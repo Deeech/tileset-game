@@ -92,7 +92,25 @@
 
 		socket.on("spawnNewPlayer", function(data) {
 			navigationMap = data.navigationMap;
-			var game = new Game(data.spawnPosition);
+			for (_player in data.allCoords) {
+				players[_player] = data.allCoords[_player];
+			};
+			console.log(data);
+			var game = new Game(data.spawnPosition, data.newPlayerName);
+		});
+
+		socket.on("updatePlayerCoord", function(data) {
+			players[data.playerName].x = data.coords.x;
+			players[data.playerName].y = data.coords.y;
+		});
+
+		socket.on("updatePlayers", function(data) {
+			if (!players[data.newPlayerName]) {
+				players[data.newPlayerName] = {
+					x: data.spawnPosition.x * 64,
+					y: data.spawnPosition.y * 64
+				};
+			}
 		});
 
 		socket.on("updateMap", function(_navigationMap) {

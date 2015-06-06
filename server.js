@@ -49,6 +49,12 @@ io.on('connection', function(socket){
 		socket.position = setSpawnPosition();
 		socket.nickname = nickname;
 
+
+		var allCoords = {};
+		for (player in players) {
+			allCoords[players[player].clientname] = players[player].position;
+		};
+
 		players[socket.clientname] = socket;
 
 		navigationMap[socket.position.x][socket.position.y] = 1;
@@ -57,12 +63,16 @@ io.on('connection', function(socket){
 
 		console.log(players);
 
+		
+
 		socket.emit('spawnNewPlayer', {
 			navigationMap: navigationMap,
-			spawnPosition: socket.position
+			spawnPosition: socket.position,
+			newPlayerName: socket.clientname,
+			allCoords: allCoords
 		});
 
-		io.sockets.emit('updateMap', navigationMap);
+		io.sockets.emit('updatePlayers', { spawnPosition: socket.position, newPlayerName: socket.clientname });
 	});
 
 	socket.on('disconnect', function() {
@@ -75,7 +85,12 @@ io.on('connection', function(socket){
 
 	socket.on('playerMove', function (data) {
 		console.log(data);
-		if (navigationMap[data.x][data.y] != 1) {
+
+		socket.position = data;
+
+		io.sockets.emit('updatePlayerCoord', { playerName: socket.clientname, coords: data});
+
+		/*if (navigationMap[data.x][data.y] != 1) {
 
 			var newPosition = {
 				x: data.x,
@@ -99,7 +114,7 @@ io.on('connection', function(socket){
 
 			socket.emit("playerMove", newPosition);
 			io.sockets.emit('updateMap', navigationMap);
-		}
+		}*/
 	});
 
 	socket.on('chat message', function(msg){
