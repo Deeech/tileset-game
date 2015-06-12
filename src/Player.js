@@ -85,7 +85,7 @@ function Player(col, row) {
 
 Player.prototype.update = function() {
 	if (this.isDown(this.KEYS.LEFT)) {
-		this.x -= 5;
+		this.x -= 10;
 		data = {
 			x: this.x,
 			y: this.y,
@@ -93,7 +93,7 @@ Player.prototype.update = function() {
 		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.RIGHT)) {
-		this.x += 5;
+		this.x += 10;
 		data = {
 			x: this.x,
 			y: this.y,
@@ -101,7 +101,7 @@ Player.prototype.update = function() {
 		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.DOWN)) {
-		this.y -= 5;
+		this.y -= 10;
 		data = {
 			x: this.x,
 			y: this.y,
@@ -109,7 +109,7 @@ Player.prototype.update = function() {
 		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.UP)) {
-		this.y += 5;
+		this.y += 10;
 		data = {
 			x: this.x,
 			y: this.y,
