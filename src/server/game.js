@@ -12,12 +12,14 @@ var navigationMap = [
 [0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0]
 ];
-var io,
+var _io,
 	gamesocket;
 
 exports.init = function(io, socket) {
-    io = io;
+    _io = io;
     gamesocket = socket;
+    gamesocket.binaryType = "arraybuffer";
+
 
     // Host Events
     gamesocket.on('userLogin', userLogin);
@@ -28,17 +30,22 @@ exports.init = function(io, socket) {
 
     // Player Events
     gamesocket.on('playerMove', playerMove);
+
 }
 
 function userLogin(nickname) {
-	gamesocket.clientname = "Player" + Math.round(Math.random()*100);
+	gamesocket.clientid = Math.round(Math.random()*100);
+	gamesocket.clientname = "p" + gamesocket.clientid;
 	gamesocket.position = setSpawnPosition();
 	gamesocket.nickname = nickname;
+
 	var allCoords = {};
+	players[gamesocket.clientname] = gamesocket;
+
 	for (player in players) {
 		allCoords[players[player].clientname] = players[player].position;
 	};
-	players[gamesocket.clientname] = gamesocket;
+	
 	navigationMap[gamesocket.position.x][gamesocket.position.y] = 1;
 
 	console.log(players);
@@ -59,9 +66,20 @@ function disconnectUser() {
 	};
 };
 function playerMove(data) {
-	console.log(data);
-	gamesocket.position = data;
-	gamesocket.broadcast.emit('updatePlayerCoord', { playerName: gamesocket.clientname, coords: data});
+	gamesocket.clientid;
+	gamesocket.position.x = data.readIntBE(3,4);
+	gamesocket.position.y = data.readIntBE(7,4);
+	console.log("buffer".green);
+	console.log(gamesocket.clientid);
+	console.log(data.readIntBE(3,4));
+	console.log(data.readIntBE(7,4));
+
+	var a = new Buffer(10);
+	a.writeIntBE(gamesocket.clientid, 0, 2);
+	a.writeIntBE(gamesocket.position.x, 2, 4);
+	a.writeIntBE(gamesocket.position.y, 6, 4);
+
+	_io.emit('updatePlayerCoord', a);
 };
 function setSpawnPosition() {
 	var spawnPosition = {
