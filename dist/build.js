@@ -28,6 +28,19 @@ function drawImage (image) {
 	[21,22,22,22,22,22,23,21,22,23]
 ];
 
+var navigationMap = [
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0],
+[0,0,0,0,0,0,0,0,0,0]
+];
+
 var tilesetImage = new Image();
 tilesetImage.src = 'static/tileset2.png';
 //tilesetImage.onload = drawImage;
@@ -58,30 +71,25 @@ function Game(spawnPosition, newPlayername) {
 	tick();
 }
 ;function Player(col, row) {
-	this.id;
 	
+	this.id;
 	this.col = col;
 	this.row = row;
-
 	this.x = this.col * 64;
 	this.y = this.row * 64;
-
-
 	this.color = "red";
-
 	this.hitPoints = 0;
 	this.maxHitPoints = 0;
 	this.isDead = false;
 	this.attackingMode = false;
 	this.followingMode = false;
-
-
+	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
+	
 	var self = this;
 	
 
-	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
-	keyState = {};
 
+	var keyState = {};
 	window.addEventListener('keydown', function(e) {
 		keyState[e.keyCode] = true;
 	});
@@ -101,13 +109,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.RIGHT)) {
 		this.x += 10;
@@ -115,13 +123,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.DOWN)) {
 		this.y -= 10;
@@ -129,13 +137,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.UP)) {
 		this.y += 10;
@@ -143,29 +151,25 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
-};;var socket = io(),
+};;var socket = new WebSocket('ws://localhost:8081'),
+
 	navigationMap;
-console.log(socket);
-socket.binaryType = "arraybuffer";
-console.log(socket);
 
 
-$("#log-in-modal").modal('show');
-
+/*$("#log-in-modal").modal('show');
 $('#send-message').submit(function() {
 	socket.emit('chat message', $('#m').val());
 	$('#m').val('');
 	return false;
 });
-
 $("#log-in-modal").submit(function(e) {
 	e.preventDefault();
 	var nickname = $("#nameInput").val();
@@ -174,30 +178,28 @@ $("#log-in-modal").submit(function(e) {
 		$("#log-in-modal").modal("hide");
 		return false;
 	}
-});
+});*/
 
-socket.on("connect", function() {
+
+/*socket.on("connect", function() {
 	console.log("connected");
-});
-
-socket.on("spawnNewPlayer", function(data) {
+});*/
+/*socket.on("spawnNewPlayer", function(data) {
 	navigationMap = data.navigationMap;
 	for (_player in data.allCoords) {
 		players[_player] = data.allCoords[_player];
 	};
 	console.log(data);
 	var game = new Game(data.spawnPosition, data.newPlayerName);
-});
-
-socket.on("updatePlayerCoord", function(data) {
+});*/
+/*socket.on("updatePlayerCoord", function(data) {
 	console.log("buffer");
 	console.log(data);
-	buf = new DataView(data);
+	buf = new DataView(data);*/
 	/*players["p" + data.getInt8(1)].x = data.getInt16(4);
 	players["p" + data.getInt8(1)].y = data.getInt16(8);*/
-});
-
-socket.on("updatePlayers", function(data) {
+/*});*/
+/*socket.on("updatePlayers", function(data) {
 	if (!players[data.newPlayerName]) {
 		players[data.newPlayerName] = {
 			x: data.spawnPosition.x * 64,
@@ -205,12 +207,14 @@ socket.on("updatePlayers", function(data) {
 		};
 	}
 });
-
 socket.on("updateMap", function(_navigationMap) {
 	navigationMap = _navigationMap;
 });
-
 socket.on('chat message', function(data) {
 	var nickname = $("<span>").addClass("label label-success").text(data.nickname);
 	var message = $('#messages').append($("<li>").append(nickname).append($("<span>").text(data.msg)));
-});
+});*/
+var game = new Game({x: 2, y: 2}, "qwe");
+socket.onmessage = function(e) {
+	console.log(e.data);
+}

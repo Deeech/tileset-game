@@ -1,28 +1,23 @@
 function Player(col, row) {
-	this.id;
 	
+	this.id;
 	this.col = col;
 	this.row = row;
-
 	this.x = this.col * 64;
 	this.y = this.row * 64;
-
-
 	this.color = "red";
-
 	this.hitPoints = 0;
 	this.maxHitPoints = 0;
 	this.isDead = false;
 	this.attackingMode = false;
 	this.followingMode = false;
-
-
+	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
+	
 	var self = this;
 	
 
-	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
-	keyState = {};
 
+	var keyState = {};
 	window.addEventListener('keydown', function(e) {
 		keyState[e.keyCode] = true;
 	});
@@ -42,13 +37,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.RIGHT)) {
 		this.x += 10;
@@ -56,13 +51,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.DOWN)) {
 		this.y -= 10;
@@ -70,13 +65,13 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 	if (this.isDown(this.KEYS.UP)) {
 		this.y += 10;
@@ -84,12 +79,12 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		socket.binaryType = "arraybuffer";
-		var a = new ArrayBuffer(11);
+		var a = new ArrayBuffer(9);
 		var b = new DataView(a);
-		b.setInt32(3, data.x);
-		b.setInt32(7, data.y);
+		b.setInt16(0, 1);
+		b.setInt32(1, data.x);
+		b.setInt32(5, data.y);
 
-		socket.emit("playerMove", a);
+		socket.send(a);
 	}
 };
