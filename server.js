@@ -9,9 +9,35 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html')
 });
 
+app.get('/dev', function(req, res){
+	res.sendFile(__dirname + '/dev.html')
+});
+
+app.get('/event_create', function(req, res){
+	res.sendFile(__dirname + '/event_create.html')
+});
+
+app.get('/event_define', function(req, res){
+	res.sendFile(__dirname + '/event_define.html')
+});
+
+app.get('/exec_commands', function(req, res){
+	res.sendFile(__dirname + '/exec_commands.html')
+});
+
+app.get('/json', function(req, res){
+	res.sendFile(__dirname + '/json_load.html')
+});
+
+
 app.use('/static', express.static('static'));
 app.use('/src', express.static('src'));
 app.use('/dist', express.static('dist'));
+app.use('/Graphics', express.static('Graphics'));
+app.use('/Data', express.static('Data'));
+app.use('/Audio', express.static('Audio'));
+app.use('/tiled', express.static('tiled'));
+app.use('/core', express.static('core'));
 
 
 var webSocketServer = new WebSocketServer.Server({
