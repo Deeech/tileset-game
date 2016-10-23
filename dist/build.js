@@ -28,19 +28,6 @@ function drawImage (image) {
 	[21,22,22,22,22,22,23,21,22,23]
 ];
 
-var navigationMap = [
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0],
-[0,0,0,0,0,0,0,0,0,0]
-];
-
 var tilesetImage = new Image();
 tilesetImage.src = 'static/tileset2.png';
 //tilesetImage.onload = drawImage;
@@ -71,25 +58,30 @@ function Game(spawnPosition, newPlayername) {
 	tick();
 }
 ;function Player(col, row) {
-	
 	this.id;
+	
 	this.col = col;
 	this.row = row;
+
 	this.x = this.col * 64;
 	this.y = this.row * 64;
+
+
 	this.color = "red";
+
 	this.hitPoints = 0;
 	this.maxHitPoints = 0;
 	this.isDead = false;
 	this.attackingMode = false;
 	this.followingMode = false;
-	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
-	
+
+
 	var self = this;
 	
 
+	this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
+	keyState = {};
 
-	var keyState = {};
 	window.addEventListener('keydown', function(e) {
 		keyState[e.keyCode] = true;
 	});
@@ -100,6 +92,54 @@ function Game(spawnPosition, newPlayername) {
 	this.isDown = function(keyCode) {
 		return keyState[keyCode] === true;
 	};
+
+
+	/*window.addEventListener('keydown', function(e) {
+		console.log("keydown");
+		//keyState[e.keyCode] = true;
+		var data;
+		if (e.keyCode == 37) { //left
+			data = {
+				x: self.col - 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
+			};
+		}
+		if (e.keyCode == 39) { //right
+			data = {
+				x: self.col + 1,
+				y: self.row,
+				oldx: self.col,
+				oldy: self.row
+			};
+		}
+		if (e.keyCode == 38) { //down
+			data = {
+				x: self.col,
+				y: self.row - 1,
+				oldx: self.col,
+				oldy: self.row
+			};
+		}
+		if (e.keyCode == 40) { //up
+			data = {
+				x: self.col,
+				y: self.row + 1,
+				oldx: self.col,
+				oldy: self.row
+			};
+		}
+
+		if (data) {
+			socket.emit("playerMove", data);
+		};
+	});*/
+
+	/*socket.on("playerMove", function(data) {
+		self.col = data.x;
+		self.row = data.y;
+	});*/
 }
 
 Player.prototype.update = function() {
@@ -109,13 +149,7 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		var a = new ArrayBuffer(9);
-		var b = new DataView(a);
-		b.setInt16(0, 1);
-		b.setInt32(1, data.x);
-		b.setInt32(5, data.y);
-
-		socket.send(a);
+		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.RIGHT)) {
 		this.x += 10;
@@ -123,13 +157,7 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		var a = new ArrayBuffer(9);
-		var b = new DataView(a);
-		b.setInt16(0, 1);
-		b.setInt32(1, data.x);
-		b.setInt32(5, data.y);
-
-		socket.send(a);
+		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.DOWN)) {
 		this.y -= 10;
@@ -137,13 +165,7 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		var a = new ArrayBuffer(9);
-		var b = new DataView(a);
-		b.setInt16(0, 1);
-		b.setInt32(1, data.x);
-		b.setInt32(5, data.y);
-
-		socket.send(a);
+		socket.emit("playerMove", data);
 	}
 	if (this.isDown(this.KEYS.UP)) {
 		this.y += 10;
@@ -151,70 +173,6 @@ Player.prototype.update = function() {
 			x: this.x,
 			y: this.y,
 		};
-		var a = new ArrayBuffer(9);
-		var b = new DataView(a);
-		b.setInt16(0, 1);
-		b.setInt32(1, data.x);
-		b.setInt32(5, data.y);
-
-		socket.send(a);
+		socket.emit("playerMove", data);
 	}
-};;var socket = new WebSocket('ws://localhost:8081'),
-
-	navigationMap;
-
-
-/*$("#log-in-modal").modal('show');
-$('#send-message').submit(function() {
-	socket.emit('chat message', $('#m').val());
-	$('#m').val('');
-	return false;
-});
-$("#log-in-modal").submit(function(e) {
-	e.preventDefault();
-	var nickname = $("#nameInput").val();
-	if (nickname) {
-		socket.emit("userLogin", nickname);
-		$("#log-in-modal").modal("hide");
-		return false;
-	}
-});*/
-
-
-/*socket.on("connect", function() {
-	console.log("connected");
-});*/
-/*socket.on("spawnNewPlayer", function(data) {
-	navigationMap = data.navigationMap;
-	for (_player in data.allCoords) {
-		players[_player] = data.allCoords[_player];
-	};
-	console.log(data);
-	var game = new Game(data.spawnPosition, data.newPlayerName);
-});*/
-/*socket.on("updatePlayerCoord", function(data) {
-	console.log("buffer");
-	console.log(data);
-	buf = new DataView(data);*/
-	/*players["p" + data.getInt8(1)].x = data.getInt16(4);
-	players["p" + data.getInt8(1)].y = data.getInt16(8);*/
-/*});*/
-/*socket.on("updatePlayers", function(data) {
-	if (!players[data.newPlayerName]) {
-		players[data.newPlayerName] = {
-			x: data.spawnPosition.x * 64,
-			y: data.spawnPosition.y * 64
-		};
-	}
-});
-socket.on("updateMap", function(_navigationMap) {
-	navigationMap = _navigationMap;
-});
-socket.on('chat message', function(data) {
-	var nickname = $("<span>").addClass("label label-success").text(data.nickname);
-	var message = $('#messages').append($("<li>").append(nickname).append($("<span>").text(data.msg)));
-});*/
-var game = new Game({x: 2, y: 2}, "qwe");
-socket.onmessage = function(e) {
-	console.log(e.data);
-}
+};

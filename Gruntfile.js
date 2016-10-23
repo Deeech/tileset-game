@@ -13,8 +13,7 @@ module.exports = function(grunt) {
 				src: [
 				'src/helpers.js',
 				'src/Game.js',
-				'src/Player.js',
-				'src/connect.js'
+				'src/Player.js'
 				],
 				dest: 'dist/build.js',
 			},
