@@ -15,6 +15,7 @@ app.use('/dist', express.static('dist'));
 
 
 io.on('connection', function(socket) {
+	console.log('connected');
 	game.init(io, socket);
 });
 

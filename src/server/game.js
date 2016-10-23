@@ -12,23 +12,9 @@ var navigationMap = [
 [0,0,0,0,0,0,0,0,0,0],
 [0,0,0,0,0,0,0,0,0,0]
 ];
+
 var io,
-	gamesocket;
-
-exports.init = function(io, socket) {
-    io = io;
-    gamesocket = socket;
-
-    // Host Events
-    gamesocket.on('userLogin', userLogin);
-    gamesocket.on('disconnect', disconnectUser);
-
-    // Chat Events
-    gamesocket.on('chat message', chatMessage)
-
-    // Player Events
-    gamesocket.on('playerMove', playerMove);
-}
+		gamesocket;
 
 function userLogin(nickname) {
 	gamesocket.clientname = "Player" + Math.round(Math.random()*100);
@@ -41,7 +27,7 @@ function userLogin(nickname) {
 	players[gamesocket.clientname] = gamesocket;
 	navigationMap[gamesocket.position.x][gamesocket.position.y] = 1;
 
-	console.log(players);
+	// console.log('socket', gamesocket);
 	gamesocket.emit('spawnNewPlayer', {
 		navigationMap: navigationMap,
 		spawnPosition: gamesocket.position,
@@ -76,5 +62,21 @@ function setSpawnPosition() {
 }
 
 function chatMessage(msg){
+	console.log(gamesocket.id);
 	gamesocket.broadcast.emit('chat message', { msg: msg, nickname: gamesocket.nickname });
 };
+
+exports.init = function(io, socket) {
+  io = io;
+  gamesocket = socket;
+
+  // Host Events
+  gamesocket.on('userLogin', userLogin);
+  gamesocket.on('disconnect', disconnectUser);
+
+  // Chat Events
+  gamesocket.on('chat message', chatMessage)
+
+  // Player Events
+  gamesocket.on('playerMove', playerMove);
+}
