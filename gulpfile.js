@@ -1,4 +1,4 @@
-var gulp = require('gulp'),
+let gulp = require('gulp'),
     webpack = require('webpack-stream');
 
 gulp.task('js', function() {

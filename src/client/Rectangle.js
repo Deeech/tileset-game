@@ -1,20 +1,20 @@
 class Rectangle {
   constructor(left = 0, top = 0, width = 0, height = 0) {
-    this.left = left
-    this.top = top
-    this.width = width
-    this.height = height
-    this.right = this.left + this.width
-    this.bottom = this.top + this.height
+    this.width = width;
+    this.height = height;
+    this.left = left;
+    this.top = top;
+    this.right = this.left + this.width;
+    this.bottom = this.top + this.height;
   }
 
   set(left, top, width, height) {
-    this.left = left
-    this.top = top
-    this.width = width || this.width
-    this.height = height || this.height
-    this.right = (this.left + this.width)
-    this.bottom = (this.top + this.height)
+    this.width = width || this.width;
+    this.height = height || this.height;
+    this.left = left;
+    this.top = top;
+    this.right = (this.left + this.width);
+    this.bottom = (this.top + this.height);
   }
 
   within(r) {

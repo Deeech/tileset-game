@@ -1,22 +1,8 @@
 'use strict';
 import { drawBackground, drawPlayer } from './helpers'
 import { Player } from './Player'
-
-
-// function Game(spawnPosition, newPlayername) {
-// 	player = new Player(spawnPosition.x, spawnPosition.y);
-// 	var self = this;
-//
-// 	players[newPlayername] = player;
-//
-// 	var tick = function () {
-// 		ctx.clearRect(0,0, canvas.width, canvas.height);
-// 		drawImage(tilesetImage);
-// 		window.requestAnimationFrame(tick);
-// 	};
-//
-// 	tick();
-// }
+import { Map } from './Map'
+import { Camera } from './Camera'
 
 const TILESET_IMG = 'static/tileset2.png'
 
@@ -31,50 +17,56 @@ class Game {
 		this.loadedResources = 0;
 		this.numResources = 2;
 
-		this.player = new Player(1, 1)
-		this.players = []
+		this.player = new Player(this.ctx, 1, 1);
+		this.players = [];
 
-		$.getJSON('/static/map.json', (data) => { this.map = data; this.checkLoaded(); })
+		$.getJSON('/static/map.json', (data) => { console.log('load mapjson'); this.mapData = data; this.checkLoaded(); });
 
-		this.tilesetImage = new Image()
-		this.tilesetImage.src = TILESET_IMG
+		this.tilesetImage = new Image();
+		this.tilesetImage.src = TILESET_IMG;
 		this.tilesetImage.onload = () => {
-			this.checkLoaded()
+			this.checkLoaded();
 		}
 
-		this.tileSize = 64;       // The size of a tile (64×64)
-		this.rowTileCount = 10;   // The number of tiles in a row of our background
-		this.colTileCount = 10;   // The number of tiles in a column of our background
-		this.imageNumTiles = 10;  // The number of tiles per row in the tileset image
+		console.log(this);
+	}
 
-		// var players = {};
+	init() {
+		console.log('init');
+		this.isLoad = true;
+		this.map = new Map(this);
+		this.map.generate();
 
-		console.log(this)
+		this.camera = new Camera(0, 0, this.canvas.width, this.canvas.height, this.mapData.width * 64, this.mapData.height * 64); // TODO: Fix these magic numbers;
+		this.camera.follow(this.player, this.canvas.width / 2, this.canvas.height / 2);
+
+		console.log(this);
+		this.handleEvents();
 	}
 
 	handleEvents() {
 		$(window).on('resize', (e) => {
 			this.canvas.width = $(window).width();
 			this.canvas.height = $(window).height();
-			drawBackground(this.ctx, this.tilesetImage, this.tileSize, this.rowTileCount, this.colTileCount, this.imageNumTiles, this.map)
+			this.map.update();
 		})
 	}
 
 	checkLoaded() {
 		this.loadedResources += 1
-
+		console.log('checkLoaded');
 		if (this.loadedResources == this.numResources) {
-			this.isLoad = true
-			drawBackground(this.ctx, this.tilesetImage, this.tileSize, this.rowTileCount, this.colTileCount, this.imageNumTiles, this.map)
-			this.handleEvents()
+			this.init();
 		}
 	}
 
 	tick() {
 		if (this.isLoad) {
-			// ctx.clearRect(0,0, canvas.width, canvas.height);
-			drawBackground(this.ctx, this.tilesetImage, this.tileSize, this.rowTileCount, this.colTileCount, this.imageNumTiles, this.map)
-			drawPlayer(this.ctx, this.player)
+			this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+			this.map.update(this.camera.xView, this.camera.yView);
+			this.player.update();
+			this.player.render();
+			this.camera.update();
 		}
 	}
 }

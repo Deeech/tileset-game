@@ -1,8 +1,8 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var game = require('./src/server/game');
+let express = require('express'),
+		app = express(),
+		http = require('http').Server(app),
+		io = require('socket.io')(http),
+		game = require('./src/server/game');
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html')

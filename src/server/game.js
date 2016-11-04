@@ -21,19 +21,21 @@ function userLogin(nickname) {
 	gamesocket.position = setSpawnPosition();
 	gamesocket.nickname = nickname;
 	var allCoords = {};
+
 	for (player in players) {
 		allCoords[players[player].clientname] = players[player].position;
 	};
+
 	players[gamesocket.clientname] = gamesocket;
 	navigationMap[gamesocket.position.x][gamesocket.position.y] = 1;
 
-	// console.log('socket', gamesocket);
 	gamesocket.emit('spawnNewPlayer', {
 		navigationMap: navigationMap,
 		spawnPosition: gamesocket.position,
 		newPlayerName: gamesocket.clientname,
 		allCoords: allCoords
 	});
+
 	gamesocket.broadcast.emit('updatePlayers', { spawnPosition: gamesocket.position, newPlayerName: gamesocket.clientname });
 };
 
@@ -54,6 +56,7 @@ function setSpawnPosition() {
 		x: Math.abs(Math.round(Math.random() * 10 - 1)),
 		y: Math.abs(Math.round(Math.random() * 10 - 1))
 	};
+
 	if (navigationMap[spawnPosition.x][spawnPosition.y] == 1) {
 		setSpawnPosition();
 	} else {

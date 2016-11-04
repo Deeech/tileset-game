@@ -5,6 +5,9 @@
   "main": "app.js",
   "author": "deeech!",
   "license": "ISC",
+  "scripts": {
+    "start": "node server.js"
+  },
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",

@@ -1,8 +1,9 @@
 'use strict';
 
 class Player {
-	constructor(col, row) {
+	constructor(ctx, col, row) {
 		this.id;
+		this.ctx = ctx;
 
 		this.col = col;
 		this.row = row;
@@ -10,8 +11,10 @@ class Player {
 		this.x = this.col * 64;
 		this.y = this.row * 64;
 
+		this.step = 5;
 
-		this.color = '#'+Math.floor(Math.random()*16777215).toString(16);;
+
+		this.color = '#'+Math.floor(Math.random()*16777215).toString(16);
 
 		this.hitPoints = 0;
 		this.maxHitPoints = 0;
@@ -88,7 +91,7 @@ class Player {
 
 	update() {
 		if (this.isDown(this.KEYS.LEFT)) {
-			this.x -= 10;
+			this.x -= this.step;
 			// data = {
 			// 	x: this.x,
 			// 	y: this.y,
@@ -97,7 +100,7 @@ class Player {
 		}
 
 		if (this.isDown(this.KEYS.RIGHT)) {
-			this.x += 10;
+			this.x += this.step;
 			// data = {
 			// 	x: this.x,
 			// 	y: this.y,
@@ -106,7 +109,7 @@ class Player {
 		}
 
 		if (this.isDown(this.KEYS.DOWN)) {
-			this.y -= 10;
+			this.y -= this.step;
 			// data = {
 			// 	x: this.x,
 			// 	y: this.y,
@@ -115,7 +118,7 @@ class Player {
 		}
 
 		if (this.isDown(this.KEYS.UP)) {
-			this.y += 10;
+			this.y += this.step;
 			// data = {
 			// 	x: this.x,
 			// 	y: this.y,
@@ -123,6 +126,12 @@ class Player {
 			// socket.emit("playerMove", data);
 		}
 	}
+
+	render() {
+		this.ctx.fillStyle = this.color;
+		this.ctx.fillRect(this.x, this.y, 64, 64);
+	}
+
 }
 
 export { Player }

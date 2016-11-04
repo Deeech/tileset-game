@@ -1,13 +1,14 @@
 import { Rectangle } from './Rectangle'
 
-class Camera {
-  constructor(xView = 0, yView = 0, canvasWidth, canvasHeight, worldWidth, worldHeight) {
-    const AXIS = {
+const AXIS = {
       NONE: 'none',
       HORIZONTAL: 'horizontal',
       VERTICAL: 'vertical',
       BOTH: 'both'
     }
+
+class Camera {
+  constructor(xView = 0, yView = 0, canvasWidth, canvasHeight, worldWidth, worldHeight) {
 
     this.xView = xView
     this.yView = yView
@@ -16,7 +17,7 @@ class Camera {
     this.yDeadZone = 0
 
     this.wView = canvasWidth
-    this.yView = canvasHeight
+    this.hView = canvasHeight
 
     this.axis = AXIS.BOTH
 
