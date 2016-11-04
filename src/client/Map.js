@@ -3,10 +3,10 @@ class Map {
   constructor(game) {
     this.game = game;
 
-    this.tileSize = 64;       // The size of a tile (64×64)
-    this.rowTileCount = 40;   // The number of tiles in a row of our background
-    this.colTileCount = 20;   // The number of tiles in a column of our background
-    this.imageNumTiles = 10;  // The number of tiles per row in the tileset image
+    this.tileSize = 32;       // The size of a tile (64×64)
+    this.rowTileCount = 100;   // The number of tiles in a row of our background
+    this.colTileCount = 100;   // The number of tiles in a column of our background
+    this.imageNumTiles = 8;  // The number of tiles per row in the tileset image
     this.ctx = this.game.ctx;
     this.tilesetImage = this.game.tilesetImage;
     this.mapData = this.game.mapData;
@@ -14,8 +14,8 @@ class Map {
 
   generate() {
     let ctx = document.createElement("canvas").getContext("2d");
-    ctx.canvas.width = this.mapData.width * 64; // TODO: Fix these magic numbers;
-    ctx.canvas.height = this.mapData.height * 64;
+    ctx.canvas.width = this.mapData.width * this.tileSize; // TODO: Fix these magic numbers;
+    ctx.canvas.height = this.mapData.height * this.tileSize;
     for (let layer_i in this.mapData.layers) {
       let layer = this.mapData.layers[layer_i]
       for (let tile_i in layer.data) {
@@ -25,7 +25,7 @@ class Map {
         tile--;
         let tileRow = (tile / this.imageNumTiles) | 0;
         let tileCol = (tile % this.imageNumTiles) | 0;
-        ctx.drawImage(this.tilesetImage, (tileCol * this.tileSize), (tileRow * this.tileSize), 64, 64, (col * 64), (row * 64), 64, 64);
+        ctx.drawImage(this.tilesetImage, (tileCol * this.tileSize), (tileRow * this.tileSize), this.tileSize, this.tileSize, (col * this.tileSize), (row * this.tileSize), this.tileSize, this.tileSize);
       }
     }
 

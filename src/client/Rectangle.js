@@ -19,16 +19,16 @@ class Rectangle {
 
   within(r) {
     return (r.left <= this.left &&
-    r.right >= this.right &&
-    r.top <= this.top &&
-    r.bottom >= this.bottom);
+            r.right >= this.right &&
+            r.top <= this.top &&
+            r.bottom >= this.bottom);
   }
 
   overlaps() {
     return (this.left < r.right &&
-    r.left < this.right &&
-    this.top < r.bottom &&
-    r.top < this.bottom);
+            r.left < this.right &&
+            this.top < r.bottom &&
+            r.top < this.bottom);
   }
 }
 

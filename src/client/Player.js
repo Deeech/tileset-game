@@ -127,9 +127,9 @@ class Player {
 		}
 	}
 
-	render() {
+	render(xView = 0, yView = 0) {
 		this.ctx.fillStyle = this.color;
-		this.ctx.fillRect(this.x, this.y, 64, 64);
+		this.ctx.fillRect((this.x - 64/2) - xView, (this.y - 64/2) - yView, 64, 64);
 	}
 
 }
