@@ -4,7 +4,7 @@ import { Map } from './Map'
 import { Camera } from './Camera'
 
 // const TILESET_IMG = 'static/tileset2.png'
-const TILESET_IMG = 'static/rpg_maker_tiles_by_ayene_chan-d48exyx.png'
+const TILESET_IMG = 'static/tileset.png'
 
 class Game {
 	constructor() {

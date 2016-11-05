@@ -6,7 +6,7 @@ class Map {
     this.tileSize = 32;       // The size of a tile (64×64)
     this.rowTileCount = 100;   // The number of tiles in a row of our background
     this.colTileCount = 100;   // The number of tiles in a column of our background
-    this.imageNumTiles = 8;  // The number of tiles per row in the tileset image
+    this.imageNumTiles = 16;  // The number of tiles per row in the tileset image
     this.ctx = this.game.ctx;
     this.tilesetImage = this.game.tilesetImage;
     this.mapData = this.game.mapData;
