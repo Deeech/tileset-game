@@ -49,17 +49,21 @@
 	var _Game = __webpack_require__(1);
 
 	var socket = io(),
-	    navigationMap = void 0;
+	    navigationMap = void 0,
+	    game = void 0;
 
-	var game = new _Game.Game();
+	$("#log-in-modal").modal('show');
 
-	var tick = function tick() {
-	    game.tick();
-	    window.requestAnimationFrame(tick);
-	};
-	tick();
+	$("#log-in-modal").submit(function (e) {
+	  e.preventDefault();
+	  var nickname = $("#nameInput").val();
+	  if (nickname) {
+	    socket.emit("userLogin", nickname);
+	    $("#log-in-modal").modal("hide");
 
-	// $("#log-in-modal").modal('show');
+	    return false;
+	  }
+	});
 
 	// $('#send-message').submit(function() {
 	//   socket.emit('chat message', $('#m').val());
@@ -67,19 +71,20 @@
 	//   return false;
 	// });
 
-	// $("#log-in-modal").submit(function(e) {
-	//   e.preventDefault();
-	//   var nickname = $("#nameInput").val();
-	//   if (nickname) {
-	//     socket.emit("userLogin", nickname);
-	//     $("#log-in-modal").modal("hide");
-	//     return false;
-	//   }
-	// });
+	socket.on("successLogin", function (data) {
+	  console.log("logined successufuly");
 
-	// socket.on("connect", function() {
-	//   console.log("connected");
-	// });
+	  game = new _Game.Game(data.clientname, socket);
+	  var tick = function tick() {
+	    game.tick();
+	    window.requestAnimationFrame(tick);
+	  };
+	  tick();
+	});
+
+	socket.on("connect", function () {
+	  console.log("connected");
+	});
 
 	// socket.on("spawnNewPlayer", function(data) {
 	//   console.log('spawnNewPlayer');
@@ -91,20 +96,26 @@
 	//   var game = new Game(data.spawnPosition, data.newPlayerName);
 	// });
 
-	// socket.on("updatePlayerCoord", function(data) {
-	//   players[data.playerName].x = data.coords.x;
-	//   players[data.playerName].y = data.coords.y;
-	// });
+	socket.on("updatePlayerCoord", function (data) {
+	  if (!!game) {
+	    game.objects[data.clientname].x = data.coords.x;
+	    game.objects[data.clientname].y = data.coords.y;
+	  }
+	});
 
-	// socket.on("updatePlayers", function(data) {
-	//   console.log('updatePlayers');
-	//   if (!players[data.newPlayerName]) {
-	//     players[data.newPlayerName] = {
-	//       x: data.spawnPosition.x * 64,
-	//       y: data.spawnPosition.y * 64
-	//     };
-	//   }
-	// });
+	socket.on("updatePlayers", function (data) {
+	  if (!!game) {
+	    console.log('updatePlayers');
+	    console.log(data);
+	    game.addGameObject(data);
+	  }
+	  // if (!players[data.newPlayerName]) {
+	  //   players[data.newPlayerName] = {
+	  //     x: data.spawnPosition.x * 64,
+	  //     y: data.spawnPosition.y * 64
+	  //   };
+	  // }
+	});
 
 	// socket.on("updateMap", function(_navigationMap) {
 	//   console.log('updateMap');
@@ -136,13 +147,15 @@
 
 	var _Camera = __webpack_require__(4);
 
+	var _GameObject = __webpack_require__(6);
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// const TILESET_IMG = 'static/tileset2.png'
 	var TILESET_IMG = 'static/tileset.png';
 
 	var Game = function () {
-		function Game() {
+		function Game(clientname, socket) {
 			var _this = this;
 
 			_classCallCheck(this, Game);
@@ -150,14 +163,17 @@
 			this.canvas = document.getElementById('cvs');
 			this.ctx = this.canvas.getContext('2d');
 
+			this.clientname = clientname;
+			this.socket = socket;
+
 			this.canvas.width = $(window).width();
 			this.canvas.height = $(window).height();
 
 			this.loadedResources = 0;
 			this.numResources = 2;
 
-			this.player = new _Player.Player(this.ctx, 1, 1);
-			this.players = [];
+			this.player = new _Player.Player(this.ctx, 1, 1, this);
+			this.objects = {};
 
 			$.getJSON('/static/map32.json', function (data) {
 				console.log('load mapjson');_this.mapData = data;_this.checkLoaded();
@@ -213,9 +229,18 @@
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 					this.camera.update();
 					this.map.update(this.camera.xView, this.camera.yView);
+					for (var obj in this.objects) {
+						this.objects[obj].render(this.ctx, this.camera);
+					}
 					this.player.update();
 					this.player.render(this.camera.xView, this.camera.yView);
 				}
+			}
+		}, {
+			key: 'addGameObject',
+			value: function addGameObject(data) {
+				console.log("added new object");
+				this.objects[data.clientname] = new _GameObject.GameObject(data.x, data.y);
 			}
 		}]);
 
@@ -239,11 +264,12 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Player = function () {
-		function Player(ctx, col, row) {
+		function Player(ctx, col, row, game) {
 			_classCallCheck(this, Player);
 
 			this.id;
 			this.ctx = ctx;
+			this.game = game;
 
 			this.col = col;
 			this.row = row;
@@ -329,38 +355,42 @@
 			value: function update() {
 				if (this.isDown(this.KEYS.LEFT)) {
 					this.x -= this.step;
-					// data = {
-					// 	x: this.x,
-					// 	y: this.y,
-					// };
-					// socket.emit("playerMove", data);
+					var data = {
+						clientname: this.game.clientname,
+						x: this.x,
+						y: this.y
+					};
+					this.game.socket.emit("playerMove", data);
 				}
 
 				if (this.isDown(this.KEYS.RIGHT)) {
 					this.x += this.step;
-					// data = {
-					// 	x: this.x,
-					// 	y: this.y,
-					// };
-					// socket.emit("playerMove", data);
+					var _data = {
+						clientname: this.game.clientname,
+						x: this.x,
+						y: this.y
+					};
+					this.game.socket.emit("playerMove", _data);
 				}
 
 				if (this.isDown(this.KEYS.DOWN)) {
 					this.y -= this.step;
-					// data = {
-					// 	x: this.x,
-					// 	y: this.y,
-					// };
-					// socket.emit("playerMove", data);
+					var _data2 = {
+						clientname: this.game.clientname,
+						x: this.x,
+						y: this.y
+					};
+					this.game.socket.emit("playerMove", _data2);
 				}
 
 				if (this.isDown(this.KEYS.UP)) {
 					this.y += this.step;
-					// data = {
-					// 	x: this.x,
-					// 	y: this.y,
-					// };
-					// socket.emit("playerMove", data);
+					var _data3 = {
+						clientname: this.game.clientname,
+						x: this.x,
+						y: this.y
+					};
+					this.game.socket.emit("playerMove", _data3);
 				}
 			}
 		}, {
@@ -707,6 +737,43 @@
 	}();
 
 	exports.Rectangle = Rectangle;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var GameObject = function () {
+		function GameObject() {
+			var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
+			var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 20;
+
+			_classCallCheck(this, GameObject);
+
+			this.x = x;
+			this.y = y;
+		}
+
+		_createClass(GameObject, [{
+			key: "render",
+			value: function render(ctx, camera) {
+				ctx.fillRect(this.x - 64 / 2 - camera.xView, this.y - 64 / 2 - camera.yView, 64, 64);
+			}
+		}]);
+
+		return GameObject;
+	}();
+
+	exports.GameObject = GameObject;
 
 /***/ }
 /******/ ]);

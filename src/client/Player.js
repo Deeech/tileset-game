@@ -1,9 +1,10 @@
 'use strict';
 
 class Player {
-	constructor(ctx, col, row) {
+	constructor(ctx, col, row, game) {
 		this.id;
 		this.ctx = ctx;
+		this.game = game;
 
 		this.col = col;
 		this.row = row;
@@ -92,38 +93,42 @@ class Player {
 	update() {
 		if (this.isDown(this.KEYS.LEFT)) {
 			this.x -= this.step;
-			// data = {
-			// 	x: this.x,
-			// 	y: this.y,
-			// };
-			// socket.emit("playerMove", data);
+			let data = {
+				clientname: this.game.clientname,
+				x: this.x,
+				y: this.y,
+			};
+			this.game.socket.emit("playerMove", data);
 		}
 
 		if (this.isDown(this.KEYS.RIGHT)) {
 			this.x += this.step;
-			// data = {
-			// 	x: this.x,
-			// 	y: this.y,
-			// };
-			// socket.emit("playerMove", data);
+			let data = {
+				clientname: this.game.clientname,
+				x: this.x,
+				y: this.y,
+			};
+			this.game.socket.emit("playerMove", data);
 		}
 
 		if (this.isDown(this.KEYS.DOWN)) {
 			this.y -= this.step;
-			// data = {
-			// 	x: this.x,
-			// 	y: this.y,
-			// };
-			// socket.emit("playerMove", data);
+			let data = {
+				clientname: this.game.clientname,
+				x: this.x,
+				y: this.y,
+			};
+			this.game.socket.emit("playerMove", data);
 		}
 
 		if (this.isDown(this.KEYS.UP)) {
 			this.y += this.step;
-			// data = {
-			// 	x: this.x,
-			// 	y: this.y,
-			// };
-			// socket.emit("playerMove", data);
+			let data = {
+				clientname: this.game.clientname,
+				x: this.x,
+				y: this.y,
+			};
+			this.game.socket.emit("playerMove", data);
 		}
 	}
 

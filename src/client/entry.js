@@ -2,20 +2,23 @@
 import { Game } from './Game'
 
 let socket = io(),
-    navigationMap;
-
-let game = new Game();
-
-
-var tick = function () {
-  game.tick();
-	window.requestAnimationFrame(tick);
-};
-tick();
+    navigationMap,
+    game;
 
 
+$("#log-in-modal").modal('show');
 
-// $("#log-in-modal").modal('show');
+$("#log-in-modal").submit(function(e) {
+  e.preventDefault();
+  var nickname = $("#nameInput").val();
+  if (nickname) {
+    socket.emit("userLogin", nickname);
+    $("#log-in-modal").modal("hide");
+
+
+    return false;
+  }
+});
 
 // $('#send-message').submit(function() {
 //   socket.emit('chat message', $('#m').val());
@@ -23,19 +26,21 @@ tick();
 //   return false;
 // });
 
-// $("#log-in-modal").submit(function(e) {
-//   e.preventDefault();
-//   var nickname = $("#nameInput").val();
-//   if (nickname) {
-//     socket.emit("userLogin", nickname);
-//     $("#log-in-modal").modal("hide");
-//     return false;
-//   }
-// });
+socket.on("successLogin", function(data) {
+  console.log("logined successufuly");
 
-// socket.on("connect", function() {
-//   console.log("connected");
-// });
+	game = new Game(data.clientname, socket);
+	let tick = function () {
+	  game.tick();
+		window.requestAnimationFrame(tick);
+	};
+	tick();
+});
+
+
+socket.on("connect", function() {
+  console.log("connected");
+});
 
 // socket.on("spawnNewPlayer", function(data) {
 //   console.log('spawnNewPlayer');
@@ -47,20 +52,26 @@ tick();
 //   var game = new Game(data.spawnPosition, data.newPlayerName);
 // });
 
-// socket.on("updatePlayerCoord", function(data) {
-//   players[data.playerName].x = data.coords.x;
-//   players[data.playerName].y = data.coords.y;
-// });
+socket.on("updatePlayerCoord", function(data) {
+	if (!!game) {
+	  game.objects[data.clientname].x = data.coords.x;
+	  game.objects[data.clientname].y = data.coords.y;
+	}
+});
 
-// socket.on("updatePlayers", function(data) {
-//   console.log('updatePlayers');
-//   if (!players[data.newPlayerName]) {
-//     players[data.newPlayerName] = {
-//       x: data.spawnPosition.x * 64,
-//       y: data.spawnPosition.y * 64
-//     };
-//   }
-// });
+socket.on("updatePlayers", function(data) {
+	if (!!game) {
+	  console.log('updatePlayers');
+	  console.log(data);
+	  game.addGameObject(data);
+	}
+  // if (!players[data.newPlayerName]) {
+  //   players[data.newPlayerName] = {
+  //     x: data.spawnPosition.x * 64,
+  //     y: data.spawnPosition.y * 64
+  //   };
+  // }
+});
 
 // socket.on("updateMap", function(_navigationMap) {
 //   console.log('updateMap');
