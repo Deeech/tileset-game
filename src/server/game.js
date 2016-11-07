@@ -1,52 +1,66 @@
-var players = {};
-
-var io,
-		gamesocket;
+let io,
+		socket;
 
 function userLogin(nickname) {
-	gamesocket.clientname = "Player" + Math.round(Math.random()*100);
-	gamesocket.nickname = nickname;
+	let players = [],
+			sockets = io.sockets.sockets;
 
-	players[gamesocket.clientname] = gamesocket;
+	socket.nickname = nickname;
+	socket.positions = {
+		x: 20,
+		y: 20
+	};
+	console.log(Object.keys(io.sockets.sockets));
 
-	gamesocket.emit('successLogin', { clientname: gamesocket.clientname });
-	gamesocket.broadcast.emit('updatePlayers', { x: 20, y:20, nickname: gamesocket.nickname, clientname: gamesocket.clientname });
+	for (s in sockets) {
+		if (socket.id !== sockets[s].id) {
+			players.push({
+				id: sockets[s].id,
+				x: sockets[s].positions.x,
+				y: sockets[s].positions.y,
+				nickname: sockets[s].nickname
+			});
+		}
+	}
+
+	socket.emit('successLogin', { id: socket.id, otherPlayers: players });
+	socket.broadcast.emit('addPlayer', { x: 20, y:20, nickname: socket.nickname, id: socket.id });
 };
 
 // function disconnectUser() {
-// 	if (gamesocket && gamesocket.clientname && gamesocket.nickname) {
-// 		console.log(gamesocket.clientname + " : " + gamesocket.nickname + " has disconected");
-// 		gamesocket.broadcast.emit('updateMap', navigationMap);
+// 	if (socket && socket.clientname && socket.nickname) {
+// 		console.log(socket.clientname + " : " + socket.nickname + " has disconected");
+// 		socket.broadcast.emit('updateMap', navigationMap);
 // 	};
 // };
 
 ////////////////////////////////////////////
 function playerMove(data) {
-	console.log('Player moved');
-	gamesocket.position = {
+	console.log(socket.id);
+	socket.position = {
 		x: data.x,
 		y: data.y,
 	};
-	gamesocket.broadcast.emit('updatePlayerCoord', { clientname: gamesocket.clientname, coords: gamesocket.position});
+	socket.broadcast.emit('updatePlayerCoord', { id: socket.id, coords: socket.position});
 };
 ////////////////////////////////////////////
 
 // function chatMessage(msg){
-// 	console.log(gamesocket.id);
-// 	gamesocket.broadcast.emit('chat message', { msg: msg, nickname: gamesocket.nickname });
+// 	console.log(socket.id);
+// 	socket.broadcast.emit('chat message', { msg: msg, nickname: socket.nickname });
 // };
 
-exports.init = function(io, socket) {
-  io = io;
-  gamesocket = socket;
+exports.init = function(_io, _socket) {
+  io = _io;
+  socket = _socket;
 
   // Host Events
-  gamesocket.on('userLogin', userLogin);
-  // gamesocket.on('disconnect', disconnectUser);
+  socket.on('userLogin', userLogin);
+  // socket.on('disconnect', disconnectUser);
 
   // Chat Events
-  // gamesocket.on('chat message', chatMessage)
+  // socket.on('chat message', chatMessage)
 
   // Player Events
-  gamesocket.on('playerMove', playerMove);
+  socket.on('playerMove', playerMove);
 }

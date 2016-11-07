@@ -74,11 +74,22 @@
 	socket.on("successLogin", function (data) {
 	  console.log("logined successufuly");
 
-	  game = new _Game.Game(data.clientname, socket);
+	  game = new _Game.Game(socket, data.id);
+	  window.game = game;
+
 	  var tick = function tick() {
 	    game.tick();
 	    window.requestAnimationFrame(tick);
 	  };
+
+	  console.log("otherPlayers");
+	  console.log(data.otherPlayers);
+	  for (var player in data.otherPlayers) {
+	    var p = data.otherPlayers[player];
+
+	    game.addPlayer(p);
+	  }
+
 	  tick();
 	});
 
@@ -98,23 +109,17 @@
 
 	socket.on("updatePlayerCoord", function (data) {
 	  if (!!game) {
-	    game.objects[data.clientname].x = data.coords.x;
-	    game.objects[data.clientname].y = data.coords.y;
+	    game.players[data.id].x = data.coords.x;
+	    game.players[data.id].y = data.coords.y;
 	  }
 	});
 
-	socket.on("updatePlayers", function (data) {
+	socket.on("addPlayer", function (data) {
 	  if (!!game) {
-	    console.log('updatePlayers');
+	    console.log('addPlayer');
 	    console.log(data);
-	    game.addGameObject(data);
+	    game.addPlayer(data);
 	  }
-	  // if (!players[data.newPlayerName]) {
-	  //   players[data.newPlayerName] = {
-	  //     x: data.spawnPosition.x * 64,
-	  //     y: data.spawnPosition.y * 64
-	  //   };
-	  // }
 	});
 
 	// socket.on("updateMap", function(_navigationMap) {
@@ -151,11 +156,10 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// const TILESET_IMG = 'static/tileset2.png'
 	var TILESET_IMG = 'static/tileset.png';
 
 	var Game = function () {
-		function Game(clientname, socket) {
+		function Game(socket, id) {
 			var _this = this;
 
 			_classCallCheck(this, Game);
@@ -163,7 +167,7 @@
 			this.canvas = document.getElementById('cvs');
 			this.ctx = this.canvas.getContext('2d');
 
-			this.clientname = clientname;
+			this.id = id;
 			this.socket = socket;
 
 			this.canvas.width = $(window).width();
@@ -173,7 +177,7 @@
 			this.numResources = 2;
 
 			this.player = new _Player.Player(this.ctx, 1, 1, this);
-			this.objects = {};
+			this.players = {};
 
 			$.getJSON('/static/map32.json', function (data) {
 				console.log('load mapjson');_this.mapData = data;_this.checkLoaded();
@@ -229,18 +233,20 @@
 					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 					this.camera.update();
 					this.map.update(this.camera.xView, this.camera.yView);
-					for (var obj in this.objects) {
-						this.objects[obj].render(this.ctx, this.camera);
+
+					for (var obj in this.players) {
+						this.players[obj].render(this.ctx, this.camera);
 					}
+
 					this.player.update();
 					this.player.render(this.camera.xView, this.camera.yView);
 				}
 			}
 		}, {
-			key: 'addGameObject',
-			value: function addGameObject(data) {
-				console.log("added new object");
-				this.objects[data.clientname] = new _GameObject.GameObject(data.x, data.y);
+			key: 'addPlayer',
+			value: function addPlayer(data) {
+				console.log("added new players");
+				this.players[data.id] = new _GameObject.GameObject(data.x, data.y);
 			}
 		}]);
 
@@ -302,52 +308,6 @@
 			this.isDown = function (keyCode) {
 				return keyState[keyCode] === true;
 			};
-
-			/*window.addEventListener('keydown', function(e) {
-	  	console.log("keydown");
-	  	//keyState[e.keyCode] = true;
-	  	var data;
-	  	if (e.keyCode == 37) { //left
-	  		data = {
-	  			x: self.col - 1,
-	  			y: self.row,
-	  			oldx: self.col,
-	  			oldy: self.row
-	  		};
-	  	}
-	  	if (e.keyCode == 39) { //right
-	  		data = {
-	  			x: self.col + 1,
-	  			y: self.row,
-	  			oldx: self.col,
-	  			oldy: self.row
-	  		};
-	  	}
-	  	if (e.keyCode == 38) { //down
-	  		data = {
-	  			x: self.col,
-	  			y: self.row - 1,
-	  			oldx: self.col,
-	  			oldy: self.row
-	  		};
-	  	}
-	  	if (e.keyCode == 40) { //up
-	  		data = {
-	  			x: self.col,
-	  			y: self.row + 1,
-	  			oldx: self.col,
-	  			oldy: self.row
-	  		};
-	  	}
-	  		if (data) {
-	  		socket.emit("playerMove", data);
-	  	};
-	  });*/
-
-			/*socket.on("playerMove", function(data) {
-	  	self.col = data.x;
-	  	self.row = data.y;
-	  });*/
 		}
 
 		_createClass(Player, [{
@@ -356,7 +316,7 @@
 				if (this.isDown(this.KEYS.LEFT)) {
 					this.x -= this.step;
 					var data = {
-						clientname: this.game.clientname,
+						id: this.game.id,
 						x: this.x,
 						y: this.y
 					};
@@ -366,7 +326,7 @@
 				if (this.isDown(this.KEYS.RIGHT)) {
 					this.x += this.step;
 					var _data = {
-						clientname: this.game.clientname,
+						id: this.game.id,
 						x: this.x,
 						y: this.y
 					};
@@ -376,7 +336,7 @@
 				if (this.isDown(this.KEYS.DOWN)) {
 					this.y -= this.step;
 					var _data2 = {
-						clientname: this.game.clientname,
+						id: this.game.id,
 						x: this.x,
 						y: this.y
 					};
@@ -386,7 +346,7 @@
 				if (this.isDown(this.KEYS.UP)) {
 					this.y += this.step;
 					var _data3 = {
-						clientname: this.game.clientname,
+						id: this.game.id,
 						x: this.x,
 						y: this.y
 					};

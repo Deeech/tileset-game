@@ -29,11 +29,22 @@ $("#log-in-modal").submit(function(e) {
 socket.on("successLogin", function(data) {
   console.log("logined successufuly");
 
-	game = new Game(data.clientname, socket);
+	game = new Game(socket, data.id);
+  window.game = game;
+
 	let tick = function () {
 	  game.tick();
 		window.requestAnimationFrame(tick);
 	};
+
+  console.log("otherPlayers");
+  console.log(data.otherPlayers);
+  for (let player in data.otherPlayers) {
+    let p = data.otherPlayers[player];
+
+    game.addPlayer(p);
+  }
+
 	tick();
 });
 
@@ -54,23 +65,17 @@ socket.on("connect", function() {
 
 socket.on("updatePlayerCoord", function(data) {
 	if (!!game) {
-	  game.objects[data.clientname].x = data.coords.x;
-	  game.objects[data.clientname].y = data.coords.y;
+	  game.players[data.id].x = data.coords.x;
+	  game.players[data.id].y = data.coords.y;
 	}
 });
 
-socket.on("updatePlayers", function(data) {
+socket.on("addPlayer", function(data) {
 	if (!!game) {
-	  console.log('updatePlayers');
+	  console.log('addPlayer');
 	  console.log(data);
-	  game.addGameObject(data);
+	  game.addPlayer(data);
 	}
-  // if (!players[data.newPlayerName]) {
-  //   players[data.newPlayerName] = {
-  //     x: data.spawnPosition.x * 64,
-  //     y: data.spawnPosition.y * 64
-  //   };
-  // }
 });
 
 // socket.on("updateMap", function(_navigationMap) {

@@ -4,15 +4,14 @@ import { Map } from './Map'
 import { Camera } from './Camera'
 import { GameObject } from './GameObject'
 
-// const TILESET_IMG = 'static/tileset2.png'
 const TILESET_IMG = 'static/tileset.png'
 
 class Game {
-	constructor(clientname, socket) {
+	constructor(socket, id) {
 		this.canvas = document.getElementById('cvs')
 		this.ctx = this.canvas.getContext('2d')
 
-		this.clientname = clientname;
+		this.id = id;
 		this.socket = socket;
 
 		this.canvas.width = $(window).width();
@@ -22,7 +21,7 @@ class Game {
 		this.numResources = 2;
 
 		this.player = new Player(this.ctx, 1, 1, this);
-		this.objects = {};
+		this.players = {};
 
 		$.getJSON('/static/map32.json', (data) => { console.log('load mapjson'); this.mapData = data; this.checkLoaded(); });
 
@@ -69,17 +68,19 @@ class Game {
 			this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
 			this.camera.update();
 			this.map.update(this.camera.xView, this.camera.yView);
-			for (let obj in this.objects) {
-				this.objects[obj].render(this.ctx, this.camera);
+
+			for (let obj in this.players) {
+				this.players[obj].render(this.ctx, this.camera);
 			}
+
 			this.player.update();
 			this.player.render(this.camera.xView, this.camera.yView);
 		}
 	}
 
-	addGameObject(data) {
-		console.log("added new object");
-		this.objects[data.clientname] = new GameObject(data.x, data.y);
+	addPlayer(data) {
+		console.log("added new players");
+		this.players[data.id] = new GameObject(data.x, data.y);
 	}
 }
 

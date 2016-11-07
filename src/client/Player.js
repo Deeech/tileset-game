@@ -40,61 +40,13 @@ class Player {
 		this.isDown = function(keyCode) {
 			return keyState[keyCode] === true;
 		};
-
-
-		/*window.addEventListener('keydown', function(e) {
-			console.log("keydown");
-			//keyState[e.keyCode] = true;
-			var data;
-			if (e.keyCode == 37) { //left
-				data = {
-					x: self.col - 1,
-					y: self.row,
-					oldx: self.col,
-					oldy: self.row
-				};
-			}
-			if (e.keyCode == 39) { //right
-				data = {
-					x: self.col + 1,
-					y: self.row,
-					oldx: self.col,
-					oldy: self.row
-				};
-			}
-			if (e.keyCode == 38) { //down
-				data = {
-					x: self.col,
-					y: self.row - 1,
-					oldx: self.col,
-					oldy: self.row
-				};
-			}
-			if (e.keyCode == 40) { //up
-				data = {
-					x: self.col,
-					y: self.row + 1,
-					oldx: self.col,
-					oldy: self.row
-				};
-			}
-
-			if (data) {
-				socket.emit("playerMove", data);
-			};
-		});*/
-
-		/*socket.on("playerMove", function(data) {
-			self.col = data.x;
-			self.row = data.y;
-		});*/
 	}
 
 	update() {
 		if (this.isDown(this.KEYS.LEFT)) {
 			this.x -= this.step;
 			let data = {
-				clientname: this.game.clientname,
+				id: this.game.id,
 				x: this.x,
 				y: this.y,
 			};
@@ -104,7 +56,7 @@ class Player {
 		if (this.isDown(this.KEYS.RIGHT)) {
 			this.x += this.step;
 			let data = {
-				clientname: this.game.clientname,
+				id: this.game.id,
 				x: this.x,
 				y: this.y,
 			};
@@ -114,7 +66,7 @@ class Player {
 		if (this.isDown(this.KEYS.DOWN)) {
 			this.y -= this.step;
 			let data = {
-				clientname: this.game.clientname,
+				id: this.game.id,
 				x: this.x,
 				y: this.y,
 			};
@@ -124,7 +76,7 @@ class Player {
 		if (this.isDown(this.KEYS.UP)) {
 			this.y += this.step;
 			let data = {
-				clientname: this.game.clientname,
+				id: this.game.id,
 				x: this.x,
 				y: this.y,
 			};
