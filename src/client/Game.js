@@ -7,7 +7,7 @@ import { GameObject } from './GameObject'
 const TILESET_IMG = 'static/tileset.png'
 
 class Game {
-	constructor(socket, id) {
+	constructor(socket, id, position) {
 		this.canvas = document.getElementById('cvs')
 		this.ctx = this.canvas.getContext('2d')
 
@@ -20,7 +20,7 @@ class Game {
 		this.loadedResources = 0;
 		this.numResources = 2;
 
-		this.player = new Player(this.ctx, 1, 1, this);
+		this.player = new Player(this.ctx, position, this);
 		this.players = {};
 
 		$.getJSON('/static/map32.json', (data) => { console.log('load mapjson'); this.mapData = data; this.checkLoaded(); });

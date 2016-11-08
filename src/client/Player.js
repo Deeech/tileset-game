@@ -1,16 +1,13 @@
 'use strict';
 
 class Player {
-	constructor(ctx, col, row, game) {
+	constructor(ctx, position, game) {
 		this.id;
 		this.ctx = ctx;
 		this.game = game;
 
-		this.col = col;
-		this.row = row;
-
-		this.x = this.col * 64;
-		this.y = this.row * 64;
+		this.x = position.x;
+		this.y = position.y;
 
 		this.step = 5;
 

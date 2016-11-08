@@ -6,7 +6,8 @@
   "author": "deeech!",
   "license": "ISC",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon --watch src/client --watch /stc/server server.js"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",

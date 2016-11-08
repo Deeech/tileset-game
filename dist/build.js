@@ -65,16 +65,16 @@
 	  }
 	});
 
-	// $('#send-message').submit(function() {
-	//   socket.emit('chat message', $('#m').val());
-	//   $('#m').val('');
-	//   return false;
-	// });
+	$('#send-message').submit(function () {
+	  socket.emit('chatMessage', $('#m').val());
+	  $('#m').val('');
+	  return false;
+	});
 
 	socket.on("successLogin", function (data) {
 	  console.log("logined successufuly");
 
-	  game = new _Game.Game(socket, data.id);
+	  game = new _Game.Game(socket, data.id, data.position);
 	  window.game = game;
 
 	  var tick = function tick() {
@@ -97,16 +97,6 @@
 	  console.log("connected");
 	});
 
-	// socket.on("spawnNewPlayer", function(data) {
-	//   console.log('spawnNewPlayer');
-	//   navigationMap = data.navigationMap;
-	//   for (let _player in data.allCoords) {
-	//     players[_player] = data.allCoords[_player];
-	//   };
-	//   console.log(data);
-	//   var game = new Game(data.spawnPosition, data.newPlayerName);
-	// });
-
 	socket.on("updatePlayerCoord", function (data) {
 	  if (!!game) {
 	    game.players[data.id].x = data.coords.x;
@@ -127,11 +117,11 @@
 	//   navigationMap = _navigationMap;
 	// });
 
-	// socket.on('chat message', function(data) {
-	//   console.log('chat message');
-	//   var nickname = $("<span>").addClass("label label-success").text(data.nickname);
-	//   var message = $('#messages').append($("<li>").append(nickname).append($("<span>").text(data.msg)));
-	// });
+	socket.on('chatMessage', function (data) {
+	  console.log('chat message');
+	  var nickname = $("<span>").addClass("label label-success").text(data.nickname);
+	  var message = $('#messages').append($("<li>").append(nickname).append($("<span>").text(data.msg)));
+	});
 
 /***/ },
 /* 1 */
@@ -159,7 +149,7 @@
 	var TILESET_IMG = 'static/tileset.png';
 
 	var Game = function () {
-		function Game(socket, id) {
+		function Game(socket, id, position) {
 			var _this = this;
 
 			_classCallCheck(this, Game);
@@ -176,7 +166,7 @@
 			this.loadedResources = 0;
 			this.numResources = 2;
 
-			this.player = new _Player.Player(this.ctx, 1, 1, this);
+			this.player = new _Player.Player(this.ctx, position, this);
 			this.players = {};
 
 			$.getJSON('/static/map32.json', function (data) {
@@ -270,18 +260,15 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Player = function () {
-		function Player(ctx, col, row, game) {
+		function Player(ctx, position, game) {
 			_classCallCheck(this, Player);
 
 			this.id;
 			this.ctx = ctx;
 			this.game = game;
 
-			this.col = col;
-			this.row = row;
-
-			this.x = this.col * 64;
-			this.y = this.row * 64;
+			this.x = position.x;
+			this.y = position.y;
 
 			this.step = 5;
 

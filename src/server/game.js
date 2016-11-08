@@ -7,8 +7,8 @@ function userLogin(nickname) {
 
 	socket.nickname = nickname;
 	socket.positions = {
-		x: 20,
-		y: 20
+		x: 100,
+		y: 100
 	};
 	console.log(Object.keys(io.sockets.sockets));
 
@@ -23,8 +23,8 @@ function userLogin(nickname) {
 		}
 	}
 
-	socket.emit('successLogin', { id: socket.id, otherPlayers: players });
-	socket.broadcast.emit('addPlayer', { x: 20, y:20, nickname: socket.nickname, id: socket.id });
+	socket.emit('successLogin', { id: socket.id, otherPlayers: players, position: socket.positions });
+	socket.broadcast.emit('addPlayer', { x: socket.positions.x, y: socket.positions.y, nickname: socket.nickname, id: socket.id });
 };
 
 // function disconnectUser() {
@@ -36,7 +36,6 @@ function userLogin(nickname) {
 
 ////////////////////////////////////////////
 function playerMove(data) {
-	console.log(socket.id);
 	socket.position = {
 		x: data.x,
 		y: data.y,
@@ -45,10 +44,9 @@ function playerMove(data) {
 };
 ////////////////////////////////////////////
 
-// function chatMessage(msg){
-// 	console.log(socket.id);
-// 	socket.broadcast.emit('chat message', { msg: msg, nickname: socket.nickname });
-// };
+function chatMessage(msg){
+	io.emit('chatMessage', { msg: msg, nickname: socket.nickname });
+};
 
 exports.init = function(_io, _socket) {
   io = _io;
@@ -59,7 +57,7 @@ exports.init = function(_io, _socket) {
   // socket.on('disconnect', disconnectUser);
 
   // Chat Events
-  // socket.on('chat message', chatMessage)
+  socket.on('chatMessage', chatMessage)
 
   // Player Events
   socket.on('playerMove', playerMove);
