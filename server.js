@@ -25,10 +25,11 @@ io.on('connection', function(socket) {
 			x: 100,
 			y: 100
 		};
+		socket.inGame = true;
 		console.log(Object.keys(io.sockets.sockets));
 
 		for (s in sockets) {
-			if (socket.id !== sockets[s].id) {
+			if (sockets[s].inGame && socket.id !== sockets[s].id) {
 				players.push({
 					id: sockets[s].id,
 					x: sockets[s].positions.x,
