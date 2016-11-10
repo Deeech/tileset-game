@@ -66,11 +66,18 @@ class Game {
 	tick() {
 		if (this.isLoad) {
 			this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height);
+
 			this.camera.update();
+
 			this.map.update(this.camera.xView, this.camera.yView);
 
 			for (let obj in this.players) {
-				this.players[obj].render(this.ctx, this.camera);
+				// if (this.players[obj].inGame) {
+					if (this.players[obj].render)
+						this.players[obj].render(this.ctx, this.camera);
+					if (this.players[obj].update)
+						this.players[obj].render();
+				// }
 			}
 
 			this.player.update();
