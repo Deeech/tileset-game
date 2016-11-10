@@ -2,7 +2,7 @@
 import { Player } from './Player'
 import { Map } from './Map'
 import { Camera } from './Camera'
-import { GameObject } from './GameObject'
+import { Entity } from './Entity'
 
 const TILESET_IMG = 'static/tileset.png'
 
@@ -80,7 +80,7 @@ class Game {
 
 	addPlayer(data) {
 		console.log("added new players");
-		this.players[data.id] = new GameObject(data.x, data.y);
+		this.players[data.id] = new Entity(data.x, data.y);
 	}
 }
 
