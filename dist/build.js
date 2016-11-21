@@ -50,7 +50,10 @@
 
 	var socket = io(),
 	    navigationMap = void 0,
+	    stats = new Stats(),
 	    game = void 0;
+
+	document.body.appendChild(stats.dom);
 
 	$("#log-in-modal").modal('show');
 
@@ -78,7 +81,9 @@
 	  window.game = game;
 
 	  var tick = function tick() {
+	    stats.begin();
 	    game.tick();
+	    stats.end();
 	    window.requestAnimationFrame(tick);
 	  };
 
@@ -86,7 +91,6 @@
 	  console.log(data.otherPlayers);
 	  for (var player in data.otherPlayers) {
 	    var p = data.otherPlayers[player];
-
 	    game.addPlayer(p);
 	  }
 
@@ -112,11 +116,6 @@
 	  }
 	});
 
-	// socket.on("updateMap", function(_navigationMap) {
-	//   console.log('updateMap');
-	//   navigationMap = _navigationMap;
-	// });
-
 	socket.on('chatMessage', function (data) {
 	  console.log('chat message');
 	  var nickname = $("<span>").addClass("label label-success").text(data.nickname);
@@ -130,7 +129,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	  value: true
 	});
 	exports.Game = undefined;
 
@@ -142,105 +141,110 @@
 
 	var _Camera = __webpack_require__(4);
 
-	var _GameObject = __webpack_require__(6);
+	var _Entity = __webpack_require__(6);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var TILESET_IMG = 'static/tileset.png';
 
 	var Game = function () {
-		function Game(socket, id, position) {
-			var _this = this;
+	  function Game(socket, id, position) {
+	    var _this = this;
 
-			_classCallCheck(this, Game);
+	    _classCallCheck(this, Game);
 
-			this.canvas = document.getElementById('cvs');
-			this.ctx = this.canvas.getContext('2d');
+	    this.canvas = document.getElementById('cvs');
+	    this.ctx = this.canvas.getContext('2d');
 
-			this.id = id;
-			this.socket = socket;
+	    this.id = id;
+	    this.socket = socket;
 
-			this.canvas.width = $(window).width();
-			this.canvas.height = $(window).height();
+	    this.canvas.width = $(window).width();
+	    this.canvas.height = $(window).height();
 
-			this.loadedResources = 0;
-			this.numResources = 2;
+	    this.loadedResources = 0;
+	    this.numResources = 2;
 
-			this.player = new _Player.Player(this.ctx, position, this);
-			this.players = {};
+	    this.player = new _Player.Player(this.ctx, position, this);
+	    this.players = {};
 
-			$.getJSON('/static/map32.json', function (data) {
-				console.log('load mapjson');_this.mapData = data;_this.checkLoaded();
-			});
+	    $.getJSON('/static/map32.json', function (data) {
+	      console.log('load mapjson');_this.mapData = data;_this.checkLoaded();
+	    });
 
-			this.tilesetImage = new Image();
-			this.tilesetImage.src = TILESET_IMG;
-			this.tilesetImage.onload = function () {
-				_this.checkLoaded();
-			};
+	    this.tilesetImage = new Image();
+	    this.tilesetImage.src = TILESET_IMG;
+	    this.tilesetImage.onload = function () {
+	      _this.checkLoaded();
+	    };
 
-			console.log(this);
-		}
+	    console.log(this);
+	  }
 
-		_createClass(Game, [{
-			key: 'init',
-			value: function init() {
-				console.log('init');
-				this.isLoad = true;
-				this.map = new _Map.Map(this);
-				this.map.generate();
+	  _createClass(Game, [{
+	    key: 'init',
+	    value: function init() {
+	      console.log('init');
+	      this.isLoad = true;
+	      this.map = new _Map.Map(this);
+	      this.map.generate();
 
-				this.camera = new _Camera.Camera(0, 0, this.canvas.width, this.canvas.height, this.mapData.width * 32, this.mapData.height * 32); // TODO: Fix these magic numbers;
-				this.camera.follow(this.player, this.canvas.width / 2, this.canvas.height / 2);
+	      this.camera = new _Camera.Camera(0, 0, this.canvas.width, this.canvas.height, this.mapData.width * 32, this.mapData.height * 32); // TODO: Fix these magic numbers;
+	      this.camera.follow(this.player, this.canvas.width / 2, this.canvas.height / 2);
 
-				console.log(this);
-				this.handleEvents();
-			}
-		}, {
-			key: 'handleEvents',
-			value: function handleEvents() {
-				var _this2 = this;
+	      console.log(this);
+	      this.handleEvents();
+	    }
+	  }, {
+	    key: 'handleEvents',
+	    value: function handleEvents() {
+	      var _this2 = this;
 
-				$(window).on('resize', function (e) {
-					_this2.canvas.width = $(window).width();
-					_this2.canvas.height = $(window).height();
-					_this2.map.update();
-				});
-			}
-		}, {
-			key: 'checkLoaded',
-			value: function checkLoaded() {
-				this.loadedResources += 1;
-				console.log('checkLoaded');
-				if (this.loadedResources == this.numResources) {
-					this.init();
-				}
-			}
-		}, {
-			key: 'tick',
-			value: function tick() {
-				if (this.isLoad) {
-					this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					this.camera.update();
-					this.map.update(this.camera.xView, this.camera.yView);
+	      $(window).on('resize', function (e) {
+	        _this2.canvas.width = $(window).width();
+	        _this2.canvas.height = $(window).height();
+	        _this2.map.update();
+	      });
+	    }
+	  }, {
+	    key: 'checkLoaded',
+	    value: function checkLoaded() {
+	      this.loadedResources += 1;
+	      console.log('checkLoaded');
+	      if (this.loadedResources == this.numResources) {
+	        this.init();
+	      }
+	    }
+	  }, {
+	    key: 'tick',
+	    value: function tick() {
+	      if (this.isLoad) {
+	        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-					for (var obj in this.players) {
-						this.players[obj].render(this.ctx, this.camera);
-					}
+	        this.camera.update();
 
-					this.player.update();
-					this.player.render(this.camera.xView, this.camera.yView);
-				}
-			}
-		}, {
-			key: 'addPlayer',
-			value: function addPlayer(data) {
-				console.log("added new players");
-				this.players[data.id] = new _GameObject.GameObject(data.x, data.y);
-			}
-		}]);
+	        this.map.update(this.camera.xView, this.camera.yView);
 
-		return Game;
+	        for (var obj in this.players) {
+	          // if (this.players[obj].inGame) {
+	          if (this.players[obj].render) this.players[obj].render(this.ctx, this.camera);
+	          if (this.players[obj].update) this.players[obj].render();
+	          // }
+	        }
+
+	        this.player.update();
+	        this.player.render(this.camera.xView, this.camera.yView);
+	      }
+	    }
+	  }, {
+	    key: 'addPlayer',
+	    value: function addPlayer(data) {
+	      console.log("added new players");
+	      this.players[data.id] = new _Entity.Entity(data.x, data.y);
+	    }
+	  }]);
+
+	  return Game;
 	}();
 
 	exports.Game = Game;
@@ -252,7 +256,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	  value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -260,98 +264,98 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Player = function () {
-		function Player(ctx, position, game) {
-			_classCallCheck(this, Player);
+	  function Player(ctx, position, game) {
+	    _classCallCheck(this, Player);
 
-			this.id;
-			this.ctx = ctx;
-			this.game = game;
+	    this.id;
+	    this.ctx = ctx;
+	    this.game = game;
 
-			this.x = position.x;
-			this.y = position.y;
+	    this.x = position.x;
+	    this.y = position.y;
 
-			this.step = 5;
+	    this.step = 5;
 
-			this.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+	    this.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
 
-			this.hitPoints = 0;
-			this.maxHitPoints = 0;
-			this.isDead = false;
-			this.attackingMode = false;
-			this.followingMode = false;
+	    this.hitPoints = 0;
+	    this.maxHitPoints = 0;
+	    this.isDead = false;
+	    this.attackingMode = false;
+	    this.followingMode = false;
 
-			var self = this;
+	    var self = this;
 
-			this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38 /*, S: 83*/ };
-			var keyState = {};
+	    this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38 /*, S: 83*/ };
+	    var keyState = {};
 
-			window.addEventListener('keydown', function (e) {
-				keyState[e.keyCode] = true;
-			});
-			window.addEventListener('keyup', function (e) {
-				keyState[e.keyCode] = false;
-			});
+	    window.addEventListener('keydown', function (e) {
+	      keyState[e.keyCode] = true;
+	    });
+	    window.addEventListener('keyup', function (e) {
+	      keyState[e.keyCode] = false;
+	    });
 
-			this.isDown = function (keyCode) {
-				return keyState[keyCode] === true;
-			};
-		}
+	    this.isDown = function (keyCode) {
+	      return keyState[keyCode] === true;
+	    };
+	  }
 
-		_createClass(Player, [{
-			key: 'update',
-			value: function update() {
-				if (this.isDown(this.KEYS.LEFT)) {
-					this.x -= this.step;
-					var data = {
-						id: this.game.id,
-						x: this.x,
-						y: this.y
-					};
-					this.game.socket.emit("playerMove", data);
-				}
+	  _createClass(Player, [{
+	    key: 'update',
+	    value: function update() {
+	      if (this.isDown(this.KEYS.LEFT)) {
+	        this.x -= this.step;
+	        var data = {
+	          id: this.game.id,
+	          x: this.x,
+	          y: this.y
+	        };
+	        this.game.socket.emit("playerMove", data);
+	      }
 
-				if (this.isDown(this.KEYS.RIGHT)) {
-					this.x += this.step;
-					var _data = {
-						id: this.game.id,
-						x: this.x,
-						y: this.y
-					};
-					this.game.socket.emit("playerMove", _data);
-				}
+	      if (this.isDown(this.KEYS.RIGHT)) {
+	        this.x += this.step;
+	        var _data = {
+	          id: this.game.id,
+	          x: this.x,
+	          y: this.y
+	        };
+	        this.game.socket.emit("playerMove", _data);
+	      }
 
-				if (this.isDown(this.KEYS.DOWN)) {
-					this.y -= this.step;
-					var _data2 = {
-						id: this.game.id,
-						x: this.x,
-						y: this.y
-					};
-					this.game.socket.emit("playerMove", _data2);
-				}
+	      if (this.isDown(this.KEYS.DOWN)) {
+	        this.y -= this.step;
+	        var _data2 = {
+	          id: this.game.id,
+	          x: this.x,
+	          y: this.y
+	        };
+	        this.game.socket.emit("playerMove", _data2);
+	      }
 
-				if (this.isDown(this.KEYS.UP)) {
-					this.y += this.step;
-					var _data3 = {
-						id: this.game.id,
-						x: this.x,
-						y: this.y
-					};
-					this.game.socket.emit("playerMove", _data3);
-				}
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				var xView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-				var yView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+	      if (this.isDown(this.KEYS.UP)) {
+	        this.y += this.step;
+	        var _data3 = {
+	          id: this.game.id,
+	          x: this.x,
+	          y: this.y
+	        };
+	        this.game.socket.emit("playerMove", _data3);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var xView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+	      var yView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-				this.ctx.fillStyle = this.color;
-				this.ctx.fillRect(this.x - 64 / 2 - xView, this.y - 64 / 2 - yView, 64, 64);
-			}
-		}]);
+	      this.ctx.fillStyle = this.color;
+	      this.ctx.fillRect(this.x - 64 / 2 - xView, this.y - 64 / 2 - yView, 64, 64);
+	    }
+	  }]);
 
-		return Player;
+	  return Player;
 	}();
 
 	exports.Player = Player;
@@ -692,35 +696,39 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	  value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var GameObject = function () {
-		function GameObject() {
-			var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
-			var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 20;
+	var Entity = function () {
+	  function Entity() {
+	    var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 20;
+	    var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 20;
 
-			_classCallCheck(this, GameObject);
+	    _classCallCheck(this, Entity);
 
-			this.x = x;
-			this.y = y;
-		}
+	    this.id = null;
+	    this.x = x;
+	    this.y = y;
+	    this.sprite = null;
+	    this.animations = null;
+	    this.currentAnimation = null;
+	  }
 
-		_createClass(GameObject, [{
-			key: "render",
-			value: function render(ctx, camera) {
-				ctx.fillRect(this.x - 64 / 2 - camera.xView, this.y - 64 / 2 - camera.yView, 64, 64);
-			}
-		}]);
+	  _createClass(Entity, [{
+	    key: "render",
+	    value: function render(ctx, camera) {
+	      ctx.fillRect(this.x - 64 / 2 - camera.xView, this.y - 64 / 2 - camera.yView, 64, 64);
+	    }
+	  }]);
 
-		return GameObject;
+	  return Entity;
 	}();
 
-	exports.GameObject = GameObject;
+	exports.Entity = Entity;
 
 /***/ }
 /******/ ]);

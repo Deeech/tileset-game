@@ -2,9 +2,11 @@
 import { Game } from './Game'
 
 let socket = io(),
-navigationMap,
-game;
+    navigationMap,
+    stats = new Stats(),
+    game;
 
+document.body.appendChild(stats.dom);
 
 $("#log-in-modal").modal('show');
 
@@ -32,7 +34,9 @@ socket.on("successLogin", function(data) {
   window.game = game;
 
   let tick = function () {
+    stats.begin();
     game.tick();
+    stats.end();
     window.requestAnimationFrame(tick);
   };
 
@@ -66,13 +70,8 @@ socket.on("addPlayer", function(data) {
   }
 });
 
-// socket.on("updateMap", function(_navigationMap) {
-//   console.log('updateMap');
-//   navigationMap = _navigationMap;
-// });
-
 socket.on('chatMessage', function(data) {
   console.log('chat message');
   let nickname = $("<span>").addClass("label label-success").text(data.nickname);
   let message = $('#messages').append($("<li>").append(nickname).append($("<span>").text(data.msg)));
-
+});
