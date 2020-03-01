@@ -1,15 +1,14 @@
 import { Rectangle } from './Rectangle'
 
 const AXIS = {
-      NONE: 'none',
-      HORIZONTAL: 'horizontal',
-      VERTICAL: 'vertical',
-      BOTH: 'both'
-    }
+  NONE: 'none',
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
+  BOTH: 'both'
+}
 
 class Camera {
   constructor(xView = 0, yView = 0, canvasWidth, canvasHeight, worldWidth, worldHeight) {
-
     this.xView = xView
     this.yView = yView
 
@@ -24,7 +23,6 @@ class Camera {
     this.followed = null
 
     this.viewportRect = new Rectangle(this.xView, this.yView, this.wView, this.hView);
-
     this.worldRect = new Rectangle(0, 0, worldWidth, worldHeight);
   }
 
@@ -53,8 +51,7 @@ class Camera {
 
     this.viewportRect.set(this.xView, this.yView);
 
-    if (!this.viewportRect.within(this.worldRect))
-    {
+    if (!this.viewportRect.within(this.worldRect)) {
       if (this.viewportRect.left < this.worldRect.left)
         this.xView = this.worldRect.left;
 

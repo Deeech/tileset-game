@@ -11,8 +11,7 @@ class Player {
 
     this.step = 5;
 
-
-    this.color = '#'+Math.floor(Math.random()*16777215).toString(16);
+    this.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
 
     this.hitPoints = 0;
     this.maxHitPoints = 0;
@@ -20,16 +19,14 @@ class Player {
     this.attackingMode = false;
     this.followingMode = false;
 
-
-    var self = this;
-
-
     this.KEYS = { LEFT: 37, RIGHT: 39, UP: 40, DOWN: 38/*, S: 83*/ };
+
     let keyState = {};
 
     window.addEventListener('keydown', function(e) {
       keyState[e.keyCode] = true;
     });
+
     window.addEventListener('keyup', function(e) {
       keyState[e.keyCode] = false;
     });
@@ -42,41 +39,49 @@ class Player {
   update() {
     if (this.isDown(this.KEYS.LEFT)) {
       this.x -= this.step;
+
       let data = {
         id: this.game.id,
         x: this.x,
         y: this.y,
       };
+
       this.game.socket.emit("playerMove", data);
     }
 
     if (this.isDown(this.KEYS.RIGHT)) {
       this.x += this.step;
+
       let data = {
         id: this.game.id,
         x: this.x,
         y: this.y,
       };
+
       this.game.socket.emit("playerMove", data);
     }
 
     if (this.isDown(this.KEYS.DOWN)) {
       this.y -= this.step;
+
       let data = {
         id: this.game.id,
         x: this.x,
         y: this.y,
       };
+
       this.game.socket.emit("playerMove", data);
     }
 
     if (this.isDown(this.KEYS.UP)) {
       this.y += this.step;
+
       let data = {
         id: this.game.id,
         x: this.x,
         y: this.y,
       };
+
       this.game.socket.emit("playerMove", data);
     }
   }

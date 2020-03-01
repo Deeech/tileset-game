@@ -7,6 +7,7 @@ class Entity {
     this.animations = null;
     this.currentAnimation = null;
   }
+
   render(ctx, camera) {
     ctx.fillRect((this.x - 64/2) - camera.xView, (this.y - 64/2) - camera.yView, 64, 64);
   }

@@ -30,12 +30,9 @@ class Game {
     this.tilesetImage.onload = () => {
       this.checkLoaded();
     }
-
-    console.log(this);
   }
 
   init() {
-    console.log('init');
     this.isLoad = true;
     this.map = new Map(this);
     this.map.generate();
@@ -43,7 +40,6 @@ class Game {
     this.camera = new Camera(0, 0, this.canvas.width, this.canvas.height, this.mapData.width * 32, this.mapData.height * 32); // TODO: Fix these magic numbers;
     this.camera.follow(this.player, this.canvas.width / 2, this.canvas.height / 2);
 
-    console.log(this);
     this.handleEvents();
   }
 
@@ -57,7 +53,6 @@ class Game {
 
   checkLoaded() {
     this.loadedResources += 1
-    console.log('checkLoaded');
     if (this.loadedResources == this.numResources) {
       this.init();
     }
@@ -86,7 +81,6 @@ class Game {
   }
 
   addPlayer(data) {
-    console.log("added new players");
     this.players[data.id] = new Entity(data.x, data.y);
   }
 }
